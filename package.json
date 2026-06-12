@@ -1,0 +1,186 @@
+{
+  "name": "dev-workflow-manager",
+  "displayName": "Dev Workflow Manager",
+  "description": "Run reusable development workflows",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.107.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "devWorkflow.addWorkflow",
+        "title": "Dev Workflow: Add Workflow"
+      },
+      {
+        "command": "devWorkflow.editWorkflow",
+        "title": "Dev Workflow: Edit Workflow"
+      },
+      {
+        "command": "devWorkflow.runWorkflow",
+        "title": "Dev Workflow: Run Workflow"
+      },
+      {
+        "command": "devWorkflow.listWorkflows",
+        "title": "Dev Workflow: List Workflows"
+      },
+      {
+        "command": "devWorkflow.deleteWorkflow",
+        "title": "Dev Workflow: Delete Workflow"
+      },
+      {
+        "command": "devWorkflow.createGroup",
+        "title": "Dev Workflow: Create Group"
+      },
+      {
+        "command": "devWorkflow.deleteGroup",
+        "title": "Dev Workflow: Delete Group"
+      },
+      {
+        "command": "devWorkflow.runWorkflowFromTree",
+        "title": "Dev Workflow: Run Workflow From Tree"
+      },
+      {
+        "command": "devWorkflow.addWorkflowToGroup",
+        "title": "Add Workflow",
+        "icon": "$(add)"
+      },
+      {
+        "command": "devWorkflow.editGroup",
+        "title": "Edit Group",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "devWorkflow.deleteGroup",
+        "title": "Delete Group",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "devWorkflow.runWorkflowFromTree",
+        "title": "Run",
+        "icon": "$(play)"
+      },
+      {
+        "command": "devWorkflow.editWorkflow",
+        "title": "Edit",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "devWorkflow.deleteWorkflow",
+        "title": "Delete",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "devWorkflow.createGroup",
+        "title": "Create Group",
+        "icon": "$(new-folder)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "devWorkflow",
+          "title": "Dev Workflow",
+          "icon": "resources/workflow.svg"
+        }
+      ]
+    },
+    "views": {
+      "devWorkflow": [
+        {
+          "id": "devWorkflowView",
+          "name": "Workflows",
+          "icon": "resources/workflow.svg"
+        }
+      ]
+    },
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "devWorkflow.addWorkflowToGroup",
+          "when": "view == devWorkflowView && viewItem == group",
+          "group": "inline"
+        },
+        {
+          "command": "devWorkflow.editGroup",
+          "when": "view == devWorkflowView && viewItem == group",
+          "group": "inline"
+        },
+        {
+          "command": "devWorkflow.deleteGroup",
+          "when": "view == devWorkflowView && viewItem == group",
+          "group": "inline"
+        },
+        {
+          "command": "devWorkflow.runWorkflowFromTree",
+          "when": "view == devWorkflowView && viewItem == workflow",
+          "group": "inline"
+        },
+        {
+          "command": "devWorkflow.editWorkflow",
+          "when": "view == devWorkflowView && viewItem == workflow",
+          "group": "inline"
+        },
+        {
+          "command": "devWorkflow.deleteWorkflow",
+          "when": "view == devWorkflowView && viewItem == workflow",
+          "group": "inline"
+        },
+        {
+          "command": "devWorkflow.addWorkflowToGroup",
+          "when": "viewItem == group",
+          "group": "inline"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "devWorkflow.createGroup",
+          "when": "view == devWorkflowView",
+          "group": "navigation"
+        },
+        {
+          "command": "devWorkflow.refresh",
+          "title": "Refresh",
+          "icon": "$(refresh)"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@types/uuid": "^10.0.0",
+    "@types/vscode": "^1.120.0",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2",
+    "esbuild": "^0.27.3",
+    "eslint": "^9.39.3",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1"
+  },
+  "dependencies": {
+    "uuid": "^14.0.0"
+  }
+}
