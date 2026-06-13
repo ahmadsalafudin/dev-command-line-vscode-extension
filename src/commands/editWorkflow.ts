@@ -1,41 +1,24 @@
 import * as vscode from 'vscode';
 import { StorageService } from '../services/storageService';
-import { pickGroup } from '../utils/groupPicker';
 
 export async function editWorkflow(
-  storage: StorageService
+  storage: StorageService,
+  treeProvider: any,
+  workflowId: string
 ) {
 
-  const workflows =
-    storage.getWorkflows();
-
-  if (!workflows.length) {
-
-    vscode.window.showInformationMessage(
-      'No workflow found'
-    );
-
-    return;
-  }
-
-  const selected =
-    await vscode.window.showQuickPick(
-      workflows.map(workflow => ({
-        label: workflow.name,
-        workflow
-      })),
-      {
-        placeHolder:
-          'Select Workflow'
-      }
-    );
-
-  if (!selected) {
-    return;
-  }
-
   const workflow =
-    selected.workflow;
+    storage.getWorkflows()
+      .find(
+        workflow =>
+          workflow.id === workflowId
+      );
+
+
+  if (!workflow) {
+    return;
+  }
+
 
   const newName =
     await vscode.window.showInputBox({
@@ -43,45 +26,42 @@ export async function editWorkflow(
       value: workflow.name
     });
 
+
   if (!newName) {
     return;
   }
 
-  const newGroup =
-    await pickGroup(
-      storage
-    );
-
-  if (!newGroup) {
-    return;
-  }
 
   const commands: string[] = [];
+
 
   for (
     const command
     of workflow.commands
   ) {
 
-    const editedCommand =
+    const edited =
       await vscode.window.showInputBox({
-        prompt: 'Edit Command',
-        value: command
+        prompt:
+          'Edit Command',
+        value:
+          command
       });
 
-    if (editedCommand === undefined) {
+
+    if (edited === undefined) {
       return;
     }
 
-    if (editedCommand.trim() !== '') {
 
-      commands.push(
-        editedCommand
-      );
-    }
+    commands.push(
+      edited
+    );
   }
 
+
   let addMore = true;
+
 
   while (addMore) {
 
@@ -97,44 +77,44 @@ export async function editWorkflow(
         }
       );
 
+
     addMore =
       answer === 'Yes';
+
 
     if (!addMore) {
       break;
     }
 
+
     const command =
       await vscode.window.showInputBox({
-        prompt: 'New Command'
+        prompt:
+          'New Command'
       });
 
-    if (!command) {
-      continue;
+
+    if (command) {
+
+      commands.push(
+        command
+      );
     }
-
-    commands.push(
-      command
-    );
   }
 
-  if (commands.length === 0) {
-
-    vscode.window.showWarningMessage(
-      'Workflow must contain at least one command'
-    );
-
-    return;
-  }
 
   await storage.updateWorkflow({
     ...workflow,
-    name: newName,
-    groupId: newGroup.id,
+    name:
+      newName,
     commands
   });
+
 
   vscode.window.showInformationMessage(
     'Workflow updated'
   );
+
+
+  treeProvider.refresh();
 }

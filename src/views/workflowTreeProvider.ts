@@ -77,25 +77,30 @@ export class WorkflowTreeProvider
         const item =
           new WorkflowTreeItem(
             workflow.name,
-            vscode.TreeItemCollapsibleState
-              .None,
+            vscode.TreeItemCollapsibleState.None,
             'workflow',
             workflow.id
           );
 
-        item.contextValue = 'workflow';
+        item.contextValue =
+          'workflow';
+
         item.command = {
           command:
             'devWorkflow.runWorkflowFromTree',
+
           title:
             'Run Workflow',
+
           arguments:
-            [workflow.id]
+            [
+              workflow.id
+            ]
         };
 
         return item;
       });
-  }
+  }         
 
   private _onDidChangeTreeData =
     new vscode.EventEmitter<void>();

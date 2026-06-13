@@ -145,8 +145,7 @@ export class StorageService {
 
     async deleteGroup(
         groupId: string
-    ): Promise<void> {
-
+    ) {
         const groups =
             this.getGroups()
                 .filter(
@@ -154,9 +153,13 @@ export class StorageService {
                         group.id !== groupId
                 );
 
-        await this.saveGroups(
-            groups
-        );
+
+        await this.context
+            .globalState
+            .update(
+                'groups',
+                groups
+            );
     }
 
     getWorkflowsByGroup(

@@ -2,11 +2,13 @@ import * as vscode from 'vscode';
 import { StorageService } from '../services/storageService';
 
 export async function runWorkflow(
-    storage: StorageService
+    storage: StorageService,
+    workflowId?: string
 ) {
 
     const workflows =
         storage.getWorkflows();
+
 
     if (!workflows.length) {
 
@@ -17,51 +19,108 @@ export async function runWorkflow(
         return;
     }
 
-    const groups =
-        storage.getGroups();
 
-    const selected =
-        await vscode.window.showQuickPick(
-            workflows.map(workflow => {
+    let workflow;
 
-                const group =
-                    groups.find(
-                        group =>
-                            group.id ===
-                            workflow.groupId
-                    );
 
-                return {
-                    label:
-                        workflow.name,
-                    description:
-                        group?.name,
-                    workflow
-                };
-            }),
-            {
-                placeHolder:
-                    'Select Workflow'
-            }
+    /**
+     * Jika dipanggil dari sidebar
+     * langsung gunakan workflow id
+     */
+    if (workflowId) {
+
+        workflow =
+            workflows.find(
+                item =>
+                    item.id === workflowId
+            );
+
+    }
+    /**
+     * Jika dipanggil dari command palette
+     * tampilkan picker
+     */
+    else {
+
+        const groups =
+            storage.getGroups();
+
+
+        const selected =
+            await vscode.window.showQuickPick(
+                workflows.map(item => {
+
+                    const group =
+                        groups.find(
+                            group =>
+                                group.id ===
+                                item.groupId
+                        );
+
+
+                    return {
+                        label:
+                            item.name,
+
+                        description:
+                            group?.name,
+
+                        workflow:
+                            item
+                    };
+
+                }),
+                {
+                    placeHolder:
+                        'Select Workflow'
+                }
+            );
+
+
+        if (!selected) {
+            return;
+        }
+
+
+        workflow =
+            selected.workflow;
+    }
+
+
+    if (!workflow) {
+
+        vscode.window.showWarningMessage(
+            'Workflow not found'
         );
 
-    if (!selected) {
         return;
     }
 
-    const workflow =
-        selected.workflow;
 
-    // Ambil semua parameter dari command
+
+    /**
+     * Ambil parameter dari command
+     *
+     * Contoh:
+     * git checkout {branch}
+     *
+     * hasil:
+     * ['branch']
+     */
     const parameters =
         extractParameters(
             workflow.commands
         );
 
+
     const values:
         Record<string, string> = {};
 
-    // Minta value untuk setiap parameter
+
+
+    /**
+     * Input value parameter
+     */
     for (
         const parameter
         of parameters
@@ -69,27 +128,44 @@ export async function runWorkflow(
 
         const value =
             await vscode.window.showInputBox({
+
                 prompt:
                     `Value for ${parameter}`
+
             });
+
 
         if (
             value === undefined
         ) {
+
             return;
         }
+
 
         values[parameter] =
             value;
     }
+
+
 
     const terminal =
         vscode.window.createTerminal(
             'Dev Workflow'
         );
 
+
     terminal.show();
 
+
+
+    /**
+     * Replace parameter
+     *
+     * {branch}
+     * menjadi
+     * develop
+     */
     for (
         const originalCommand
         of workflow.commands
@@ -98,8 +174,12 @@ export async function runWorkflow(
         let command =
             originalCommand;
 
+
         for (
-            const [key, value]
+            const [
+                key,
+                value
+            ]
             of Object.entries(values)
         ) {
 
@@ -110,21 +190,28 @@ export async function runWorkflow(
                 );
         }
 
+
         terminal.sendText(
             command
         );
     }
 }
 
+
+
 function extractParameters(
     commands: string[]
 ): string[] {
 
+
     const parameters =
         new Set<string>();
 
+
     const regex =
         /{([^}]+)}/g;
+
+
 
     for (
         const command
@@ -133,17 +220,22 @@ function extractParameters(
 
         let match;
 
+
         while (
-            (match =
-                regex.exec(command))
-            !== null
+            (
+                match =
+                regex.exec(command)
+            ) !== null
         ) {
 
             parameters.add(
                 match[1]
             );
+
         }
+
     }
+
 
     return [
         ...parameters

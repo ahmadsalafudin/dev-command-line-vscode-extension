@@ -81,6 +81,11 @@
         "command": "devWorkflow.createGroup",
         "title": "Create Group",
         "icon": "$(new-folder)"
+      },
+      {
+        "command": "devWorkflow.refresh",
+        "title": "Dev Workflow: Refresh",
+        "icon": "$(refresh)"
       }
     ],
     "viewsContainers": {

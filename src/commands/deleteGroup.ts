@@ -1,141 +1,107 @@
 import * as vscode from 'vscode';
 import { StorageService } from '../services/storageService';
+import { WorkflowTreeProvider } from '../views/workflowTreeProvider';
 
 export async function deleteGroup(
-  storage: StorageService
+    storage: StorageService,
+    treeProvider: WorkflowTreeProvider,
+    groupId: string
 ) {
 
-  const groups =
-    storage.getGroups();
+    const group =
+        storage
+            .getGroups()
+            .find(
+                item =>
+                    item.id === groupId
+            );
 
-  if (!groups.length) {
 
-    vscode.window.showInformationMessage(
-      'No group found'
-    );
+    if (!group) {
+        return;
+    }
 
-    return;
-  }
 
-  const selected =
-    await vscode.window.showQuickPick(
-      groups.map(group => ({
-        label: group.name,
-        group
-      })),
-      {
-        placeHolder:
-          'Select Group'
-      }
-    );
+    const workflows =
+        storage.getWorkflowsByGroup(
+            groupId
+        );
 
-  if (!selected) {
-    return;
-  }
 
-  const workflows =
-    storage.getWorkflowsByGroup(
-      selected.group.id
-    );
+    const confirm =
+        await vscode.window.showWarningMessage(
+            `Delete group "${group.name}"?`,
+            {
+                modal: true
+            },
+            'Delete'
+        );
 
-  // Jika group kosong
-  if (!workflows.length) {
+
+    if (confirm !== 'Delete') {
+        return;
+    }
+
+
+    if (workflows.length) {
+
+        const action =
+            await vscode.window.showQuickPick(
+                [
+                    'Delete workflows',
+                    'Move workflows',
+                    'Cancel'
+                ],
+                {
+                    placeHolder:
+                        `Group contains ${workflows.length} workflows`
+                }
+            );
+
+
+        if (!action ||
+            action === 'Cancel'
+        ) {
+            return;
+        }
+
+
+        if (
+            action ===
+            'Delete workflows'
+        ) {
+
+            await storage.deleteWorkflowsByGroup(
+                groupId
+            );
+
+        }
+
+
+        if (
+            action ===
+            'Move workflows'
+        ) {
+
+            vscode.window.showWarningMessage(
+                'Move workflow not implemented'
+            );
+
+            return;
+        }
+
+    }
+
 
     await storage.deleteGroup(
-      selected.group.id
+        groupId
     );
+
+
+    treeProvider.refresh();
+
 
     vscode.window.showInformationMessage(
-      'Group deleted'
+        'Group deleted'
     );
-
-    return;
-  }
-
-  const action =
-    await vscode.window.showQuickPick(
-      [
-        'Delete workflows',
-        'Move workflows',
-        'Cancel'
-      ],
-      {
-        placeHolder:
-          `Group contains ${workflows.length} workflow(s)`
-      }
-    );
-
-  if (
-    !action ||
-    action === 'Cancel'
-  ) {
-    return;
-  }
-
-  // Delete workflows
-  if (
-    action ===
-    'Delete workflows'
-  ) {
-
-    await storage.deleteWorkflowsByGroup(
-      selected.group.id
-    );
-
-    await storage.deleteGroup(
-      selected.group.id
-    );
-
-    vscode.window.showInformationMessage(
-      'Group and workflows deleted'
-    );
-
-    return;
-  }
-
-  // Move workflows
-  const availableGroups =
-    groups.filter(
-      group =>
-        group.id !==
-        selected.group.id
-    );
-
-  if (!availableGroups.length) {
-
-    vscode.window.showWarningMessage(
-      'No destination group available'
-    );
-
-    return;
-  }
-
-  const targetGroup =
-    await vscode.window.showQuickPick(
-      availableGroups.map(group => ({
-        label: group.name,
-        group
-      })),
-      {
-        placeHolder:
-          'Select Destination Group'
-      }
-    );
-
-  if (!targetGroup) {
-    return;
-  }
-
-  await storage.moveWorkflows(
-    selected.group.id,
-    targetGroup.group.id
-  );
-
-  await storage.deleteGroup(
-    selected.group.id
-  );
-
-  vscode.window.showInformationMessage(
-    `Group deleted and workflows moved to ${targetGroup.group.name}`
-  );
 }

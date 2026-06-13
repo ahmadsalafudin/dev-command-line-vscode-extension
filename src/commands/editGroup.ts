@@ -2,55 +2,33 @@ import * as vscode from 'vscode';
 import { StorageService } from '../services/storageService';
 
 export async function editGroup(
-  storage: StorageService
+  storage: StorageService,
+  treeProvider: any,
+  groupId: string
 ) {
 
-  const groups =
-    storage.getGroups();
+  const groups = storage.getGroups();
+  const group = groups.find(g => g.id === groupId);
 
-  if (!groups.length) {
-
-    vscode.window.showInformationMessage(
-      'No group found'
-    );
-
+  if (!group) {
     return;
   }
-
-  const selected =
-    await vscode.window.showQuickPick(
-      groups.map(group => ({
-        label: group.name,
-        group
-      })),
-      {
-        placeHolder:
-          'Select Group'
-      }
-    );
-
-  if (!selected) {
-    return;
-  }
-
-  const name =
+  const newName =
     await vscode.window.showInputBox({
-      prompt:
-        'Group Name',
-      value:
-        selected.group.name
+      value: group.name,
+      prompt: 'Group Name'
     });
 
-  if (!name) {
+  if (!newName) {
     return;
   }
 
   await storage.updateGroup({
-    ...selected.group,
-    name
+    ...group,
+    name: newName
   });
 
-  vscode.window.showInformationMessage(
-    'Group updated'
-  );
+  vscode.window.showInformationMessage('Group updated');
+
+  treeProvider.refresh();
 }
