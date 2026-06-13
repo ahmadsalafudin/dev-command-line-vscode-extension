@@ -154,12 +154,9 @@ export class StorageService {
                 );
 
 
-        await this.context
-            .globalState
-            .update(
-                'groups',
-                groups
-            );
+        await this.saveGroups(
+            groups
+        );
     }
 
     getWorkflowsByGroup(
@@ -239,5 +236,51 @@ export class StorageService {
         await this.saveWorkflows(
             workflows
         );
+    }
+
+    async exportData() {
+
+        return {
+
+            version: 1,
+
+            exportedAt:
+                new Date()
+                    .toISOString(),
+
+            groups:
+                this.getGroups(),
+
+            workflows:
+                this.getWorkflows()
+
+        };
+
+    }
+
+    async importData(
+        data: any
+    ): Promise<void> {
+
+        if (
+            !data.groups ||
+            !data.workflows
+        ) {
+
+            throw new Error(
+                'Invalid workflow JSON format'
+            );
+        }
+
+
+        await this.saveGroups(
+            data.groups
+        );
+
+
+        await this.saveWorkflows(
+            data.workflows
+        );
+
     }
 }

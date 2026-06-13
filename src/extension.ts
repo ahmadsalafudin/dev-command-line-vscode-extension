@@ -9,6 +9,8 @@ import { deleteGroup } from './commands/deleteGroup';
 import { deleteWorkflow } from './commands/deleteWorkflow';
 import { editGroup } from './commands/editGroup';
 import { editWorkflow } from './commands/editWorkflow';
+import { exportWorkflow } from './commands/exportWorkflow';
+import { importWorkflow } from './commands/importWorkflow';
 import { listWorkflows } from './commands/listWorkflows';
 import { runWorkflow } from './commands/runWorkflow';
 import { WorkflowTreeItem } from './views/workflowTreeItem';
@@ -308,6 +310,27 @@ export function activate(
 			}
 		);
 
+	const importWorkflowCommand =
+		vscode.commands.registerCommand(
+			'devWorkflow.importWorkflow',
+			async () => {
+
+				await importWorkflow(
+					storage
+				);
+
+				treeProvider.refresh();
+
+			}
+		);
+
+
+	const exportWorkflowCommand =
+		vscode.commands.registerCommand(
+			'devWorkflow.exportWorkflow',
+			() => exportWorkflow(storage)
+		);
+
 	context.subscriptions.push(
 		addWorkflowCommand,
 		runWorkflowCommand,
@@ -320,7 +343,9 @@ export function activate(
 		runWorkflowFromTree,
 		refreshCommand,
 		addWorkflowToGroupCommand,
-		toggleFavoriteCommand
+		toggleFavoriteCommand,
+		importWorkflowCommand,
+		exportWorkflowCommand
 	);
 }
 

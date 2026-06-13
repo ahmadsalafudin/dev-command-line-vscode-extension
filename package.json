@@ -92,6 +92,16 @@
         "command": "devWorkflow.toggleFavorite",
         "title": "Favorite",
         "icon": "$(star-full)"
+      },
+      {
+        "command": "devWorkflow.importWorkflow",
+        "title": "Import Workflow",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "devWorkflow.exportWorkflow",
+        "title": "Export Workflow",
+        "icon": "$(cloud-upload)"
       }
     ],
     "viewsContainers": {
@@ -162,9 +172,14 @@
           "group": "navigation"
         },
         {
-          "command": "devWorkflow.refresh",
-          "title": "Refresh",
-          "icon": "$(refresh)"
+          "command": "devWorkflow.importWorkflow",
+          "when": "view == devWorkflowView",
+          "group": "navigation"
+        },
+        {
+          "command": "devWorkflow.exportWorkflow",
+          "when": "view == devWorkflowView",
+          "group": "navigation"
         }
       ]
     }
@@ -185,7 +200,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
-    "@types/node": "22.x",
+    "@types/node": "^22.19.21",
     "@types/uuid": "^10.0.0",
     "@types/vscode": "^1.120.0",
     "@vscode/test-cli": "^0.0.11",
