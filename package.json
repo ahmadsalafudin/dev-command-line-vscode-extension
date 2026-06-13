@@ -65,7 +65,8 @@
       {
         "command": "devWorkflow.runWorkflowFromTree",
         "title": "Run",
-        "icon": "$(play)"
+        "icon": "$(play)",
+        "enablement": "view == devWorkflowView"
       },
       {
         "command": "devWorkflow.editWorkflow",
@@ -86,6 +87,11 @@
         "command": "devWorkflow.refresh",
         "title": "Dev Workflow: Refresh",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "devWorkflow.toggleFavorite",
+        "title": "Favorite",
+        "icon": "$(star-full)"
       }
     ],
     "viewsContainers": {
@@ -141,6 +147,11 @@
         {
           "command": "devWorkflow.addWorkflowToGroup",
           "when": "viewItem == group",
+          "group": "inline"
+        },
+        {
+          "command": "devWorkflow.toggleFavorite",
+          "when": "view == devWorkflowView && viewItem == workflow",
           "group": "inline"
         }
       ],

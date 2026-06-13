@@ -215,4 +215,29 @@ export class StorageService {
             workflows
         );
     }
+
+    async toggleFavorite(
+        workflowId: string
+    ) {
+
+        const workflows =
+            this.getWorkflows();
+
+        const workflow =
+            workflows.find(
+                item =>
+                    item.id === workflowId
+            );
+
+        if (!workflow) {
+            return;
+        }
+
+        workflow.favorite =
+            !workflow.favorite;
+
+        await this.saveWorkflows(
+            workflows
+        );
+    }
 }

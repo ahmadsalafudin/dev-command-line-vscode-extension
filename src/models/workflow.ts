@@ -3,4 +3,5 @@ export interface Workflow {
     name: string;
     groupId: string;
     commands: string[];
+    favorite?: boolean;
 }

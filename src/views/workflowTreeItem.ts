@@ -8,7 +8,7 @@ export class WorkflowTreeItem
     collapsibleState:
       vscode.TreeItemCollapsibleState,
     public readonly type:
-      'group' | 'workflow',
+      'group' | 'workflow' | 'favorite-root',
     public readonly idValue?: string
   ) {
 

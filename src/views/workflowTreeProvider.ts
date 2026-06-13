@@ -22,9 +22,23 @@ export class WorkflowTreeProvider
   ): Thenable<WorkflowTreeItem[]> {
 
     if (!element) {
+
+      return Promise.resolve([
+        this.getFavoriteRoot(),
+        ...this.getGroups()
+      ]);
+
+    }
+
+    if (
+      element.type ===
+      'favorite-root'
+    ) {
+
       return Promise.resolve(
-        this.getGroups()
+        this.getFavorites()
       );
+
     }
 
     if (
@@ -100,7 +114,65 @@ export class WorkflowTreeProvider
 
         return item;
       });
-  }         
+  }
+
+  private getFavoriteRoot():
+    WorkflowTreeItem {
+
+    const item =
+      new WorkflowTreeItem(
+        '⭐ Favorites',
+        vscode.TreeItemCollapsibleState.Expanded,
+        'favorite-root'
+      );
+
+
+    item.contextValue =
+      'favorite-root';
+
+
+    return item;
+
+  }
+
+  private getFavorites():
+    WorkflowTreeItem[] {
+
+    return this.storage
+      .getWorkflows()
+      .filter(
+        workflow =>
+          workflow.favorite
+      )
+      .map(workflow => {
+
+        const item =
+          new WorkflowTreeItem(
+            `⭐ ${workflow.name}`,
+            vscode.TreeItemCollapsibleState.None,
+            'workflow',
+            workflow.id
+          );
+
+        item.command = {
+          command:
+            'devWorkflow.runWorkflowFromTree',
+
+          title:
+            'Run Workflow',
+
+          arguments:
+            [
+              item
+            ]
+        };
+
+        item.contextValue =
+          'workflow';
+
+        return item;
+      });
+  }
 
   private _onDidChangeTreeData =
     new vscode.EventEmitter<void>();

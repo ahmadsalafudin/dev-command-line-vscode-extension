@@ -10,9 +10,9 @@ import { deleteWorkflow } from './commands/deleteWorkflow';
 import { editGroup } from './commands/editGroup';
 import { editWorkflow } from './commands/editWorkflow';
 import { listWorkflows } from './commands/listWorkflows';
+import { runWorkflow } from './commands/runWorkflow';
 import { WorkflowTreeItem } from './views/workflowTreeItem';
 import { WorkflowTreeProvider } from './views/workflowTreeProvider';
-import { runWorkflow } from './commands/runWorkflow';
 
 export function activate(
 	context: vscode.ExtensionContext
@@ -131,16 +131,145 @@ export function activate(
 		vscode.commands.registerCommand(
 			'devWorkflow.runWorkflowFromTree',
 			async (
-				workflowId: string
+				item: WorkflowTreeItem
 			) => {
 
-				await runWorkflow(
-					storage,
-					workflowId
-				);
+				if (!item) {
+					return;
+				}
+
+
+				const workflow =
+					storage
+						.getWorkflows()
+						.find(
+							workflow =>
+								workflow.id ===
+								item.idValue
+						);
+
+
+				if (!workflow) {
+					return;
+				}
+
+
+				const parameters =
+					extractParameters(
+						workflow.commands
+					);
+
+
+				const values:
+					Record<string, string> = {};
+
+
+				for (
+					const parameter
+					of parameters
+				) {
+
+					const value =
+						await vscode.window.showInputBox({
+							prompt:
+								`Value for ${parameter}`
+						});
+
+
+					if (
+						value === undefined
+					) {
+						return;
+					}
+
+
+					values[parameter] =
+						value;
+				}
+
+
+
+				const terminal =
+					vscode.window.createTerminal(
+						'Dev Workflow'
+					);
+
+
+				terminal.show();
+
+
+
+				for (
+					const originalCommand
+					of workflow.commands
+				) {
+
+					let command =
+						originalCommand;
+
+
+					for (
+						const [
+							key,
+							value
+						]
+						of Object.entries(values)
+					) {
+
+						command =
+							command.replaceAll(
+								`{${key}}`,
+								value
+							);
+					}
+
+
+					terminal.sendText(
+						command
+					);
+				}
 
 			}
 		);
+
+	function extractParameters(
+		commands: string[]
+	): string[] {
+
+		const parameters =
+			new Set<string>();
+
+		const regex =
+			/{([^}]+)}/g;
+
+
+		for (
+			const command
+			of commands
+		) {
+
+			let match;
+
+
+			while (
+				(match =
+					regex.exec(command))
+				!== null
+			) {
+
+				parameters.add(
+					match[1]
+				);
+
+			}
+
+		}
+
+
+		return [
+			...parameters
+		];
+	}
 
 	const refreshCommand =
 		vscode.commands.registerCommand(
@@ -164,6 +293,21 @@ export function activate(
 			}
 		);
 
+	const toggleFavoriteCommand =
+		vscode.commands.registerCommand(
+			'devWorkflow.toggleFavorite',
+			async (
+				item: WorkflowTreeItem
+			) => {
+
+				await storage.toggleFavorite(
+					item.idValue!
+				);
+
+				treeProvider.refresh();
+			}
+		);
+
 	context.subscriptions.push(
 		addWorkflowCommand,
 		runWorkflowCommand,
@@ -176,6 +320,7 @@ export function activate(
 		runWorkflowFromTree,
 		refreshCommand,
 		addWorkflowToGroupCommand,
+		toggleFavoriteCommand
 	);
 }
 
