@@ -10,14 +10,48 @@ export async function createGroup(
             prompt: 'Group Name'
         });
 
+
     if (!name) {
         return;
     }
 
+
+    const cleanName =
+        name.trim();
+
+
+    const exists =
+        storage.getGroups()
+            .some(
+                group =>
+                    group.name
+                        .toLowerCase() ===
+                    cleanName.toLowerCase()
+            );
+
+
+    if (exists) {
+
+        vscode.window.showWarningMessage(
+            'Group name already exists'
+        );
+
+        return;
+    }
+
+
+
     await storage.addGroup({
-        id: Date.now().toString(),
-        name
+
+        id:
+            Date.now()
+                .toString(),
+
+        name:
+            cleanName
     });
+
+
 
     vscode.window.showInformationMessage(
         'Group created'

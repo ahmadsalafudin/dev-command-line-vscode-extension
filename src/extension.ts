@@ -125,6 +125,9 @@ export function activate(
 		'devWorkflowView',
 		{
 			treeDataProvider:
+				treeProvider,
+
+			dragAndDropController:
 				treeProvider
 		}
 	);
@@ -313,22 +316,21 @@ export function activate(
 	const importWorkflowCommand =
 		vscode.commands.registerCommand(
 			'devWorkflow.importWorkflow',
-			async () => {
-
-				await importWorkflow(
-					storage
-				);
-
-				treeProvider.refresh();
-
-			}
+			() =>
+				importWorkflow(
+					storage,
+					treeProvider
+				)
 		);
 
 
 	const exportWorkflowCommand =
 		vscode.commands.registerCommand(
 			'devWorkflow.exportWorkflow',
-			() => exportWorkflow(storage)
+			() =>
+				exportWorkflow(
+					storage
+				)
 		);
 
 	context.subscriptions.push(

@@ -15,6 +15,32 @@ export async function addWorkflowToGroup(
     return;
   }
 
+  const cleanName =
+    name.trim();
+
+
+  const exists =
+    storage.getWorkflows()
+      .some(
+        workflow =>
+          workflow.name
+            .trim()
+            .toLowerCase() ===
+          cleanName
+            .trim()
+            .toLowerCase()
+      );
+
+
+  if (exists) {
+
+    vscode.window.showWarningMessage(
+      'Workflow name already exists'
+    );
+
+    return;
+  }
+
   const commands: string[] = [];
 
   let addMore = true;
@@ -47,7 +73,7 @@ export async function addWorkflowToGroup(
 
   await storage.addWorkflow({
     id: Date.now().toString(),
-    name,
+    name: cleanName,
     groupId,
     commands
   });

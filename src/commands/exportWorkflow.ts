@@ -6,29 +6,50 @@ export async function exportWorkflow(
   storage: StorageService
 ) {
 
+
   const data = {
-    instruction: [
-      "Import this file using Dev Workflow > Import",
-      "groups contains workflow groups",
-      "workflows contains workflow commands"
-    ],
+
+    version:
+      1,
+
+
+    exportedAt:
+      new Date()
+        .toISOString(),
+
+
+    description:
+      'Dev Workflow Manager backup',
+
 
     groups:
       storage.getGroups(),
 
+
     workflows:
       storage.getWorkflows()
+
   };
+
 
 
   const uri =
     await vscode.window.showSaveDialog({
+
       filters: {
-        JSON: [
-          'json'
-        ]
-      }
+
+        JSON:
+          [
+            'json'
+          ]
+
+      },
+
+      saveLabel:
+        'Export Backup'
+
     });
+
 
 
   if (!uri) {
@@ -36,8 +57,10 @@ export async function exportWorkflow(
   }
 
 
+
   await vscode.workspace.fs.writeFile(
     uri,
+
     Buffer.from(
       JSON.stringify(
         data,
@@ -48,7 +71,8 @@ export async function exportWorkflow(
   );
 
 
+
   vscode.window.showInformationMessage(
-    'Workflow exported'
+    'Backup exported'
   );
 }

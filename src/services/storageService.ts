@@ -283,4 +283,134 @@ export class StorageService {
         );
 
     }
+
+    async moveWorkflow(
+        workflowId: string,
+        groupId: string
+    ): Promise<void> {
+
+
+        const workflows =
+            this.getWorkflows();
+
+
+        const workflow =
+            workflows.find(
+                item =>
+                    item.id === workflowId
+            );
+
+
+        if (!workflow) {
+            return;
+        }
+
+
+        workflow.groupId =
+            groupId;
+
+
+        await this.saveWorkflows(
+            workflows
+        );
+    }
+
+    async replaceData(
+        groups: WorkflowGroup[],
+        workflows: Workflow[]
+    ): Promise<void> {
+
+        await this.saveGroups(
+            groups
+        );
+
+        await this.saveWorkflows(
+            workflows
+        );
+    }
+
+    async mergeData(
+        groups: WorkflowGroup[],
+        workflows: Workflow[]
+    ): Promise<void> {
+
+
+        const currentGroups =
+            this.getGroups();
+
+
+        const currentWorkflows =
+            this.getWorkflows();
+
+
+
+        const newGroups =
+            [
+                ...currentGroups
+            ];
+
+
+
+        for (
+            const group
+            of groups
+        ) {
+
+            const exists =
+                currentGroups.some(
+                    item =>
+                        item.id === group.id
+                );
+
+
+            if (!exists) {
+
+                newGroups.push(
+                    group
+                );
+
+            }
+        }
+
+
+
+        const newWorkflows =
+            [
+                ...currentWorkflows
+            ];
+
+
+
+        for (
+            const workflow
+            of workflows
+        ) {
+
+            const exists =
+                currentWorkflows.some(
+                    item =>
+                        item.id === workflow.id
+                );
+
+
+            if (!exists) {
+
+                newWorkflows.push(
+                    workflow
+                );
+
+            }
+        }
+
+
+
+        await this.saveGroups(
+            newGroups
+        );
+
+
+        await this.saveWorkflows(
+            newWorkflows
+        );
+    }
 }

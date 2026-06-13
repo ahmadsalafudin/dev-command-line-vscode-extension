@@ -3,7 +3,84 @@ import { StorageService } from '../services/storageService';
 import { WorkflowTreeItem } from './workflowTreeItem';
 
 export class WorkflowTreeProvider
-  implements vscode.TreeDataProvider<WorkflowTreeItem> {
+  implements
+  vscode.TreeDataProvider<WorkflowTreeItem>,
+  vscode.TreeDragAndDropController<WorkflowTreeItem> {
+
+  readonly dragMimeTypes = [
+    'application/vnd.code.tree.devWorkflowView'
+  ];
+
+  readonly dropMimeTypes = [
+    'application/vnd.code.tree.devWorkflowView'
+  ];
+
+  handleDrag(
+    source: readonly WorkflowTreeItem[],
+    dataTransfer: vscode.DataTransfer
+  ) {
+
+    dataTransfer.set(
+      'application/vnd.code.tree.devWorkflowView',
+      new vscode.DataTransferItem(
+        source[0]
+      )
+    );
+
+  }
+
+  async handleDrop(
+    target: WorkflowTreeItem | undefined,
+    dataTransfer: vscode.DataTransfer
+  ) {
+
+    if (!target) {
+      return;
+    }
+
+
+    if (
+      target.type !== 'group'
+    ) {
+      return;
+    }
+
+
+    const item =
+      dataTransfer.get(
+        'application/vnd.code.tree.devWorkflowView'
+      );
+
+
+    if (!item) {
+      return;
+    }
+
+
+    const source =
+      item.value as WorkflowTreeItem;
+
+
+    if (
+      source.type !== 'workflow'
+    ) {
+      return;
+    }
+
+
+    await this.storage.moveWorkflow(
+      source.idValue!,
+      target.idValue!
+    );
+
+
+    this.refresh();
+
+
+    vscode.window.showInformationMessage(
+      'Workflow moved'
+    );
+  }
 
   constructor(
     private storage:

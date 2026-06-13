@@ -31,6 +31,39 @@ export async function editWorkflow(
     return;
   }
 
+  const exists =
+    storage.getWorkflows()
+      .some(
+        item =>
+          item.id !== workflow.id &&
+          item.name
+            .trim()
+            .toLowerCase() ===
+          newName
+            .trim()
+            .toLowerCase()
+      );
+
+
+  if (exists) {
+
+    vscode.window.showWarningMessage(
+      'Workflow name already exists'
+    );
+
+    return;
+  }
+
+
+  if (exists) {
+
+    vscode.window.showWarningMessage(
+      'Group name already exists'
+    );
+
+    return;
+  }
+
 
   const commands: string[] = [];
 
