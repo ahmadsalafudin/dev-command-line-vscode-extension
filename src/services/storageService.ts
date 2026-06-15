@@ -14,16 +14,21 @@ export interface WorkflowBackupData {
 }
 
 export class StorageService {
-
     private readonly WORKFLOW_KEY = 'workflows';
     private readonly GROUP_KEY = 'groups';
+    private readonly LAST_SYNC_KEY = 'lastSync';
 
     constructor(
-        private context: vscode.ExtensionContext
+        private context: vscode.ExtensionContext,
+        private onChange?: () => void
     ) { }
+    private changed() {
+        if (this.onChange) {
+            this.onChange();
+        }
+    }
 
     getWorkflows(): Workflow[] {
-
         return this.context.globalState.get(
             this.WORKFLOW_KEY,
             []
@@ -33,22 +38,18 @@ export class StorageService {
     async saveWorkflows(
         workflows: Workflow[]
     ): Promise<void> {
-
         await this.context.globalState.update(
             this.WORKFLOW_KEY,
             workflows
         );
+        this.changed();
     }
 
     async addWorkflow(
         workflow: Workflow
     ): Promise<void> {
-
-        const workflows =
-            this.getWorkflows();
-
+        const workflows = this.getWorkflows();
         workflows.push(workflow);
-
         await this.saveWorkflows(
             workflows
         );
@@ -57,7 +58,6 @@ export class StorageService {
     async deleteWorkflow(
         id: string
     ): Promise<void> {
-
         const workflows =
             this.getWorkflows()
                 .filter(
@@ -68,15 +68,13 @@ export class StorageService {
         await this.saveWorkflows(
             workflows
         );
+        this.changed();
     }
 
     async updateWorkflow(
         updatedWorkflow: Workflow
     ): Promise<void> {
-
-        const workflows =
-            this.getWorkflows();
-
+        const workflows = this.getWorkflows();
         const index =
             workflows.findIndex(
                 workflow =>
@@ -94,10 +92,10 @@ export class StorageService {
         await this.saveWorkflows(
             workflows
         );
+        this.changed();
     }
 
     getGroups(): WorkflowGroup[] {
-
         return this.context.globalState.get(
             this.GROUP_KEY,
             []
@@ -107,34 +105,28 @@ export class StorageService {
     async addGroup(
         group: WorkflowGroup
     ): Promise<void> {
-
-        const groups =
-            this.getGroups();
-
+        const groups = this.getGroups();
         groups.push(group);
-
         await this.saveGroups(
             groups
         );
+        this.changed();
     }
 
     async saveGroups(
         groups: WorkflowGroup[]
     ): Promise<void> {
-
         await this.context.globalState.update(
             this.GROUP_KEY,
             groups
         );
+        this.changed();
     }
 
     async updateGroup(
         updatedGroup: WorkflowGroup
     ): Promise<void> {
-
-        const groups =
-            this.getGroups();
-
+        const groups = this.getGroups();
         const index =
             groups.findIndex(
                 group =>
@@ -152,6 +144,7 @@ export class StorageService {
         await this.saveGroups(
             groups
         );
+        this.changed();
     }
 
     async deleteGroup(
@@ -164,16 +157,15 @@ export class StorageService {
                         group.id !== groupId
                 );
 
-
         await this.saveGroups(
             groups
         );
+        this.changed();
     }
 
     getWorkflowsByGroup(
         groupId: string
     ) {
-
         return this.getWorkflows()
             .filter(
                 workflow =>
@@ -184,35 +176,29 @@ export class StorageService {
     async deleteWorkflowsByGroup(
         groupId: string
     ): Promise<void> {
-
-        const workflows =
-            this.getWorkflows()
-                .filter(
-                    workflow =>
-                        workflow.groupId !== groupId
-                );
+        const workflows = this.getWorkflows()
+            .filter(
+                workflow =>
+                    workflow.groupId !== groupId
+            );
 
         await this.saveWorkflows(
             workflows
         );
+        this.changed();
     }
 
     async moveWorkflows(
         fromGroupId: string,
         toGroupId: string
     ): Promise<void> {
-
-        const workflows =
-            this.getWorkflows();
-
+        const workflows = this.getWorkflows();
         workflows.forEach(
             workflow => {
-
                 if (
                     workflow.groupId ===
                     fromGroupId
                 ) {
-
                     workflow.groupId =
                         toGroupId;
                 }
@@ -222,15 +208,13 @@ export class StorageService {
         await this.saveWorkflows(
             workflows
         );
+        this.changed();
     }
 
     async toggleFavorite(
         workflowId: string
     ) {
-
-        const workflows =
-            this.getWorkflows();
-
+        const workflows = this.getWorkflows();
         const workflow =
             workflows.find(
                 item =>
@@ -247,64 +231,45 @@ export class StorageService {
         await this.saveWorkflows(
             workflows
         );
+        this.changed();
     }
 
     async exportData() {
-
         return {
-
             version: 1,
-
             exportedAt:
                 new Date()
                     .toISOString(),
-
             groups:
                 this.getGroups(),
-
             workflows:
                 this.getWorkflows()
-
         };
-
     }
 
     async importData(
         data: any
     ): Promise<void> {
-
-        if (
-            !data.groups ||
-            !data.workflows
-        ) {
-
+        if (!data.groups || !data.workflows) {
             throw new Error(
                 'Invalid workflow JSON format'
             );
         }
 
-
         await this.saveGroups(
             data.groups
         );
 
-
         await this.saveWorkflows(
             data.workflows
         );
-
     }
 
     async moveWorkflow(
         workflowId: string,
         groupId: string
     ): Promise<void> {
-
-
-        const workflows =
-            this.getWorkflows();
-
-
+        const workflows = this.getWorkflows();
         const workflow =
             workflows.find(
                 item =>
@@ -316,10 +281,8 @@ export class StorageService {
             return;
         }
 
-
         workflow.groupId =
             groupId;
-
 
         await this.saveWorkflows(
             workflows
@@ -330,7 +293,6 @@ export class StorageService {
         groups: WorkflowGroup[],
         workflows: Workflow[]
     ): Promise<void> {
-
         await this.saveGroups(
             groups
         );
@@ -344,81 +306,52 @@ export class StorageService {
         groups: WorkflowGroup[],
         workflows: Workflow[]
     ): Promise<void> {
-
-
-        const currentGroups =
-            this.getGroups();
-
-
-        const currentWorkflows =
-            this.getWorkflows();
-
-
+        const currentGroups = this.getGroups();
+        const currentWorkflows = this.getWorkflows();
 
         const newGroups =
             [
                 ...currentGroups
             ];
-
-
-
-        for (
-            const group
-            of groups
-        ) {
-
+        for (const group of groups) {
             const exists =
                 currentGroups.some(
                     item =>
                         item.id === group.id
                 );
 
-
             if (!exists) {
-
                 newGroups.push(
                     group
                 );
-
             }
         }
-
-
 
         const newWorkflows =
             [
                 ...currentWorkflows
             ];
 
-
-
         for (
             const workflow
             of workflows
         ) {
-
             const exists =
                 currentWorkflows.some(
                     item =>
                         item.id === workflow.id
                 );
 
-
             if (!exists) {
-
                 newWorkflows.push(
                     workflow
                 );
-
             }
         }
-
-
 
         await this.saveGroups(
             newGroups
         );
-
 
         await this.saveWorkflows(
             newWorkflows
@@ -427,24 +360,29 @@ export class StorageService {
 
     getBackupData()
         : WorkflowBackupData {
-
-
         return {
-
             version: 1,
-
             updatedAt:
                 new Date()
                     .toISOString(),
-
-
             groups:
                 this.getGroups(),
-
-
             workflows:
                 this.getWorkflows()
-
         };
+    }
+
+    getLastSync():
+        string | undefined {
+        return this.context.globalState.get(
+            this.LAST_SYNC_KEY
+        );
+    }
+
+    async saveLastSync(): Promise<void> {
+        await this.context.globalState.update(
+            this.LAST_SYNC_KEY,
+            new Date().toISOString()
+        );
     }
 }

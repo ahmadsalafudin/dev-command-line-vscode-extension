@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { initialSync } from './initialSync';
 import { StorageService } from '../services/storageService';
+import { initialSync } from './initialSync';
 
 
 export async function githubMenu(
@@ -21,10 +21,8 @@ export async function githubMenu(
 
 
   const items = [];
-
   if (!session) {
     items.push({
-
       label:
         '$(github) Connect GitHub',
 
@@ -39,11 +37,21 @@ export async function githubMenu(
         'account'
     });
 
+    const lastSync =
+      storage.getLastSync();
+
+    if (lastSync) {
+      items.push({
+        label:
+          `$(clock) Last Sync: ${formatDate(lastSync)}`,
+        action:
+          'lastSync'
+      });
+    }
 
     items.push({
       label:
         '$(sync) Sync Data',
-
       action:
         'sync'
     });
@@ -100,7 +108,24 @@ export async function githubMenu(
       );
 
       break;
-
   }
 
+  function formatDate(
+    date: string
+  ) {
+
+    return new Date(date)
+      .toLocaleString(
+        'id-ID',
+        {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        }
+      );
+
+  }
 }

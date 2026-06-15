@@ -15,6 +15,7 @@ import { listWorkflows } from './commands/listWorkflows';
 import { runWorkflow } from './commands/runWorkflow';
 import { syncGithub } from './commands/syncGithub';
 import { StorageService } from './services/storageService';
+import { SyncManager } from './services/syncManager';
 import { WorkflowTreeItem } from './views/workflowTreeItem';
 import { WorkflowTreeProvider } from './views/workflowTreeProvider';
 
@@ -22,16 +23,60 @@ export function activate(
 	context: vscode.ExtensionContext
 ) {
 
-	// console.log(
-	// 	'DEV WORKFLOW ACTIVATED'
-	// );
-
 	vscode.window.showInformationMessage(
 		'DEV WORKFLOW ACTIVATED'
 	);
 
+	let syncManager: SyncManager;
+
+
+	const githubSyncStatus =
+		vscode.window.createStatusBarItem(
+			vscode.StatusBarAlignment.Right,
+			100
+		);
+
+	githubSyncStatus.text = "$(github)";
+	githubSyncStatus.tooltip = "Dev Workflow GitHub Sync";
+	githubSyncStatus.show();
+	context.subscriptions.push(githubSyncStatus);
+
 	const storage =
-		new StorageService(context);
+		new StorageService(
+			context,
+			() => {
+				syncManager
+					?.triggerSync();
+			}
+		);
+
+	syncManager =
+		new SyncManager(
+			storage,
+			context,
+			(status) => {
+				console.log(
+					'SYNC STATUS:',
+					status
+				);
+
+				switch (status) {
+					case 'syncing':
+						githubSyncStatus.text = "$(sync~spin)";
+						githubSyncStatus.tooltip = "Syncing workflow to GitHub...";
+						break;
+					case 'success':
+						githubSyncStatus.text = "$(github)";
+						githubSyncStatus.tooltip = "Workflow synced";
+						break;
+					case 'error':
+						githubSyncStatus.text = "$(error)";
+						githubSyncStatus.tooltip =
+							"GitHub sync failed";
+						break;
+				}
+			}
+		);
 
 	const githubAuth =
 		new GithubAuth(context);
