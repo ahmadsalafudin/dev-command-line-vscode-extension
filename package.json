@@ -1,7 +1,7 @@
 {
-  "name": "dev-workflow-manager",
-  "displayName": "Dev Workflow Manager",
-  "description": "Run reusable development workflows",
+  "name": "dev-command-line",
+  "displayName": "Dev Command Line",
+  "description": "Run reusable development Commands",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.107.0"
@@ -9,107 +9,105 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "*"
-  ],
+  "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "devWorkflow.addWorkflow",
-        "title": "Dev Workflow: Add Workflow"
+        "command": "devCommand.addCommand",
+        "title": "Dev Command: Add Command"
       },
       {
-        "command": "devWorkflow.editWorkflow",
-        "title": "Dev Workflow: Edit Workflow"
+        "command": "devCommand.editCommand",
+        "title": "Dev Command: Edit Command"
       },
       {
-        "command": "devWorkflow.runWorkflow",
-        "title": "Dev Workflow: Run Workflow"
+        "command": "devCommand.runCommand",
+        "title": "Dev Command: Run Command"
       },
       {
-        "command": "devWorkflow.listWorkflows",
-        "title": "Dev Workflow: List Workflows"
+        "command": "devCommand.listCommands",
+        "title": "Dev Command: List Commands"
       },
       {
-        "command": "devWorkflow.deleteWorkflow",
-        "title": "Dev Workflow: Delete Workflow"
+        "command": "devCommand.deleteCommand",
+        "title": "Dev Command: Delete Command"
       },
       {
-        "command": "devWorkflow.createGroup",
-        "title": "Dev Workflow: Create Group"
+        "command": "devCommand.createGroup",
+        "title": "Dev Command: Create Group"
       },
       {
-        "command": "devWorkflow.deleteGroup",
-        "title": "Dev Workflow: Delete Group"
+        "command": "devCommand.deleteGroup",
+        "title": "Dev Command: Delete Group"
       },
       {
-        "command": "devWorkflow.runWorkflowFromTree",
-        "title": "Dev Workflow: Run Workflow From Tree"
+        "command": "devCommand.runCommandFromTree",
+        "title": "Dev Command: Run Command From Tree"
       },
       {
-        "command": "devWorkflow.addWorkflowToGroup",
-        "title": "Add Workflow",
+        "command": "devCommand.addCommandToGroup",
+        "title": "Add Command",
         "icon": "$(add)"
       },
       {
-        "command": "devWorkflow.editGroup",
+        "command": "devCommand.editGroup",
         "title": "Edit Group",
         "icon": "$(edit)"
       },
       {
-        "command": "devWorkflow.deleteGroup",
+        "command": "devCommand.deleteGroup",
         "title": "Delete Group",
         "icon": "$(trash)"
       },
       {
-        "command": "devWorkflow.runWorkflowFromTree",
+        "command": "devCommand.runCommandFromTree",
         "title": "Run",
         "icon": "$(play)",
-        "enablement": "view == devWorkflowView"
+        "enablement": "view == devCommandView"
       },
       {
-        "command": "devWorkflow.editWorkflow",
+        "command": "devCommand.editCommand",
         "title": "Edit",
         "icon": "$(edit)"
       },
       {
-        "command": "devWorkflow.deleteWorkflow",
+        "command": "devCommand.deleteCommand",
         "title": "Delete",
         "icon": "$(trash)"
       },
       {
-        "command": "devWorkflow.createGroup",
+        "command": "devCommand.createGroup",
         "title": "Create Group",
         "icon": "$(new-folder)"
       },
       {
-        "command": "devWorkflow.refresh",
-        "title": "Dev Workflow: Refresh",
+        "command": "devCommand.refresh",
+        "title": "Dev Command: Refresh",
         "icon": "$(refresh)"
       },
       {
-        "command": "devWorkflow.toggleFavorite",
+        "command": "devCommand.toggleFavorite",
         "title": "Favorite",
         "icon": "$(star-full)"
       },
       {
-        "command": "devWorkflow.importWorkflow",
-        "title": "Import Workflow",
+        "command": "devCommand.importCommand",
+        "title": "Import Command",
         "icon": "$(cloud-download)"
       },
       {
-        "command": "devWorkflow.exportWorkflow",
-        "title": "Export Workflow",
+        "command": "devCommand.exportCommand",
+        "title": "Export Command",
         "icon": "$(cloud-upload)"
       },
       {
-        "command": "devWorkflow.connectGithub",
+        "command": "devCommand.connectGithub",
         "title": "Connect to GitHub",
         "icon": "$(github)"
       },
       {
-        "command": "devWorkflow.githubMenu",
+        "command": "devCommand.githubMenu",
         "title": "GitHub",
         "icon": "$(github)"
       }
@@ -117,83 +115,83 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "devWorkflow",
-          "title": "Dev Workflow",
-          "icon": "resources/workflow.svg"
+          "id": "devCommand",
+          "title": "Dev Command",
+          "icon": "resources/command.svg"
         }
       ]
     },
     "views": {
-      "devWorkflow": [
+      "devCommand": [
         {
-          "id": "devWorkflowView",
-          "name": "Workflows",
-          "icon": "resources/workflow.svg"
+          "id": "devCommandView",
+          "name": "Commands",
+          "icon": "resources/command.svg"
         }
       ]
     },
     "menus": {
       "view/item/context": [
         {
-          "command": "devWorkflow.addWorkflowToGroup",
-          "when": "view == devWorkflowView && viewItem == group",
+          "command": "devCommand.addCommandToGroup",
+          "when": "view == devCommandView && viewItem == group",
           "group": "inline"
         },
         {
-          "command": "devWorkflow.editGroup",
-          "when": "view == devWorkflowView && viewItem == group",
+          "command": "devCommand.editGroup",
+          "when": "view == devCommandView && viewItem == group",
           "group": "inline"
         },
         {
-          "command": "devWorkflow.deleteGroup",
-          "when": "view == devWorkflowView && viewItem == group",
+          "command": "devCommand.deleteGroup",
+          "when": "view == devCommandView && viewItem == group",
           "group": "inline"
         },
         {
-          "command": "devWorkflow.runWorkflowFromTree",
-          "when": "view == devWorkflowView && viewItem == workflow",
+          "command": "devCommand.runCommandFromTree",
+          "when": "view == devCommandView && viewItem == Command",
           "group": "inline"
         },
         {
-          "command": "devWorkflow.editWorkflow",
-          "when": "view == devWorkflowView && viewItem == workflow",
+          "command": "devCommand.editCommand",
+          "when": "view == devCommandView && viewItem == Command",
           "group": "inline"
         },
         {
-          "command": "devWorkflow.deleteWorkflow",
-          "when": "view == devWorkflowView && viewItem == workflow",
+          "command": "devCommand.deleteCommand",
+          "when": "view == devCommandView && viewItem == Command",
           "group": "inline"
         },
         {
-          "command": "devWorkflow.addWorkflowToGroup",
+          "command": "devCommand.addCommandToGroup",
           "when": "viewItem == group",
           "group": "inline"
         },
         {
-          "command": "devWorkflow.toggleFavorite",
-          "when": "view == devWorkflowView && viewItem == workflow",
+          "command": "devCommand.toggleFavorite",
+          "when": "view == devCommandView && viewItem == Command",
           "group": "inline"
         }
       ],
       "view/title": [
         {
-          "command": "devWorkflow.createGroup",
-          "when": "view == devWorkflowView",
+          "command": "devCommand.createGroup",
+          "when": "view == devCommandView",
           "group": "navigation@1"
         },
         {
-          "command": "devWorkflow.importWorkflow",
-          "when": "view == devWorkflowView",
+          "command": "devCommand.importCommand",
+          "when": "view == devCommandView",
           "group": "navigation@2"
         },
         {
-          "command": "devWorkflow.exportWorkflow",
-          "when": "view == devWorkflowView",
+          "command": "devCommand.exportCommand",
+          "when": "view == devCommandView",
           "group": "navigation@3"
         },
         {
-          "command": "devWorkflow.githubMenu",
-          "when": "view == devWorkflowView",
+          "command": "devCommand.githubMenu",
+          "when": "view == devCommandView",
           "group": "navigation@4",
           "icon": "$(github)"
         }

@@ -1,13 +1,19 @@
 import * as vscode from 'vscode';
-import { WorkflowGroup } from '../models/workflowGroup';
+import { CommandGroup } from '../models/commandGroup';
 import { StorageService } from '../services/storageService';
 
 export async function pickGroup(
-  storage: StorageService
-): Promise<WorkflowGroup | undefined> {
+  storage: StorageService,
+  excludeGroupId?: string
+): Promise<CommandGroup | undefined> {
 
   const groups =
-    storage.getGroups();
+    storage
+      .getGroups()
+      .filter(
+        group =>
+          group.id !== excludeGroupId
+      );
 
   const selected =
     await vscode.window.showQuickPick(
@@ -16,13 +22,13 @@ export async function pickGroup(
           label: group.name,
           group
         })),
+
         {
           label: '+ Create New Group'
         }
       ],
       {
-        placeHolder:
-          'Select Group'
+        placeHolder: 'Select Group'
       }
     );
 
@@ -30,11 +36,7 @@ export async function pickGroup(
     return;
   }
 
-  if (
-    selected.label ===
-    '+ Create New Group'
-  ) {
-
+  if (selected.label === '+ Create New Group') {
     const name =
       await vscode.window.showInputBox({
         prompt:
@@ -45,9 +47,11 @@ export async function pickGroup(
       return;
     }
 
-    const group: WorkflowGroup = {
-      id: Date.now().toString(),
-      name
+    const group: CommandGroup = {
+      id:
+        Date.now().toString(),
+      name:
+        name.trim()
     };
 
     await storage.addGroup(
@@ -57,9 +61,11 @@ export async function pickGroup(
     return group;
   }
 
+
   if ('group' in selected) {
     return selected.group;
   }
+
 
   return undefined;
 }

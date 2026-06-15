@@ -18,17 +18,21 @@ export async function initialSync(
         github
       );
 
-    await file.uploadWorkflowFile(
+    await file.uploadCommandFile(
       storage.getBackupData()
     );
 
     vscode.window.showInformationMessage(
       'Initial sync completed ✓'
     );
-  } catch (error) {
-    console.error(error);
-    vscode.window.showErrorMessage(
-      'Initial sync failed'
+  }  catch (error) {
+    console.error(
+        'Initial sync error:',
+        error
     );
-  }
+
+    vscode.window.showErrorMessage(
+        `Initial sync failed: ${error}`
+    );
+}
 }

@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
 import { StorageService } from '../services/storageService';
-import { WorkflowTreeProvider } from '../views/workflowTreeProvider';
+import { CommandTreeProvider } from '../views/commandTreeProvider';
+import { pickGroup } from '../utils/groupPicker';
 
 export async function deleteGroup(
     storage: StorageService,
-    treeProvider: WorkflowTreeProvider,
+    treeProvider: CommandTreeProvider,
     groupId: string
 ) {
-
     const group =
         storage
             .getGroups()
@@ -16,17 +16,14 @@ export async function deleteGroup(
                     item.id === groupId
             );
 
-
     if (!group) {
         return;
     }
 
-
-    const workflows =
-        storage.getWorkflowsByGroup(
+    const Commands =
+        storage.getCommandsByGroup(
             groupId
         );
-
 
     const confirm =
         await vscode.window.showWarningMessage(
@@ -37,61 +34,52 @@ export async function deleteGroup(
             'Delete'
         );
 
-
     if (confirm !== 'Delete') {
         return;
     }
 
 
-    if (workflows.length) {
-
+    if (Commands.length) {
         const action =
             await vscode.window.showQuickPick(
                 [
-                    'Delete workflows',
-                    'Move workflows',
+                    'Delete Commands',
+                    'Move Commands',
                     'Cancel'
                 ],
                 {
-                    placeHolder:
-                        `Group contains ${workflows.length} workflows`
+                    placeHolder: `Group contains ${Commands.length} Commands`
                 }
             );
 
 
-        if (!action ||
-            action === 'Cancel'
-        ) {
+        if (!action || action === 'Cancel') {
             return;
         }
 
-
-        if (
-            action ===
-            'Delete workflows'
-        ) {
-
-            await storage.deleteWorkflowsByGroup(
+        if (action === 'Delete Commands') {
+            await storage.deleteCommandsByGroup(
                 groupId
             );
-
         }
 
+        if (action === 'Move Commands') {
+            const target =
+                await pickGroup(
+                    storage,
+                    groupId
+                );
 
-        if (
-            action ===
-            'Move workflows'
-        ) {
+            if (!target) {
+                return;
+            }
 
-            vscode.window.showWarningMessage(
-                'Move workflow not implemented'
+            await storage.moveCommands(
+                groupId,
+                target.id
             );
-
-            return;
         }
-
     }
-
 
     await storage.deleteGroup(
         groupId
@@ -99,7 +87,6 @@ export async function deleteGroup(
 
 
     treeProvider.refresh();
-
 
     vscode.window.showInformationMessage(
         'Group deleted'

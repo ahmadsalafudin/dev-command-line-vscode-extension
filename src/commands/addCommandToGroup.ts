@@ -1,14 +1,14 @@
 import * as vscode from 'vscode';
 import { StorageService } from '../services/storageService';
 
-export async function addWorkflowToGroup(
+export async function addCommandToGroup(
   storage: StorageService,
   groupId: string
 ) {
 
   const name =
     await vscode.window.showInputBox({
-      prompt: 'Workflow Name'
+      prompt: 'Command Name'
     });
 
   if (!name) {
@@ -20,10 +20,10 @@ export async function addWorkflowToGroup(
 
 
   const exists =
-    storage.getWorkflows()
+    storage.getCommands()
       .some(
-        workflow =>
-          workflow.name
+        Command =>
+          Command.name
             .trim()
             .toLowerCase() ===
           cleanName
@@ -35,7 +35,7 @@ export async function addWorkflowToGroup(
   if (exists) {
 
     vscode.window.showWarningMessage(
-      'Workflow name already exists'
+      'Command name already exists'
     );
 
     return;
@@ -71,7 +71,7 @@ export async function addWorkflowToGroup(
       answer === 'Yes';
   }
 
-  await storage.addWorkflow({
+  await storage.addCommand({
     id: Date.now().toString(),
     name: cleanName,
     groupId,

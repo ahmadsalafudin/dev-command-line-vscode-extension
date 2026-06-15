@@ -20,11 +20,11 @@ export async function syncGithub(
       github
     );
 
-  await file.uploadWorkflowFile(
+  await file.uploadCommandFile(
     storage.getBackupData()
   );
 
   vscode.window.showInformationMessage(
-    'Workflow synced to GitHub ✓'
+    'Command synced to GitHub ✓'
   );
 }

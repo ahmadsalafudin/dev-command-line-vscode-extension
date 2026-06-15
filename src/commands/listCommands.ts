@@ -1,17 +1,17 @@
 import * as vscode from 'vscode';
 import { StorageService } from '../services/storageService';
 
-export async function listWorkflows(
+export async function listCommands(
     storage: StorageService
 ) {
 
-    const workflows =
-        storage.getWorkflows();
+    const Commands =
+        storage.getCommands();
 
-    if (!workflows.length) {
+    if (!Commands.length) {
 
         vscode.window.showInformationMessage(
-            'No workflow found'
+            'No Command found'
         );
 
         return;
@@ -20,27 +20,27 @@ export async function listWorkflows(
     const groups =
         storage.getGroups();
     await vscode.window.showQuickPick(
-        workflows.map(workflow => {
+        Commands.map(Command => {
 
             const group =
                 groups.find(
                     group =>
                         group.id ===
-                        workflow.groupId
+                        Command.groupId
                 );
 
             return {
                 label:
-                    workflow.name,
+                    Command.name,
                 description:
                     `[${group?.name ?? 'Unknown'}]`,
                 detail:
-                    `${workflow.commands.length} command(s)`
+                    `${Command.commands.length} command(s)`
             };
         }),
         {
             placeHolder:
-                'Available Workflows'
+                'Available Commands'
         }
     );
 }

@@ -4,22 +4,16 @@ import { StorageService } from '../services/storageService';
 export async function createGroup(
     storage: StorageService
 ) {
-
     const name =
         await vscode.window.showInputBox({
             prompt: 'Group Name'
         });
 
-
     if (!name) {
         return;
     }
 
-
-    const cleanName =
-        name.trim();
-
-
+    const cleanName = name.trim();
     const exists =
         storage.getGroups()
             .some(
@@ -29,9 +23,7 @@ export async function createGroup(
                     cleanName.toLowerCase()
             );
 
-
     if (exists) {
-
         vscode.window.showWarningMessage(
             'Group name already exists'
         );
@@ -40,18 +32,13 @@ export async function createGroup(
     }
 
 
-
     await storage.addGroup({
-
         id:
             Date.now()
                 .toString(),
-
         name:
             cleanName
     });
-
-
 
     vscode.window.showInformationMessage(
         'Group created'

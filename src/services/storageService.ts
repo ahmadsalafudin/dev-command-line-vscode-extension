@@ -1,20 +1,16 @@
 import * as vscode from 'vscode';
-import { Workflow } from '../models/workflow';
-import { WorkflowGroup } from '../models/workflowGroup';
+import { Command } from '../models/command';
+import { CommandGroup } from '../models/commandGroup';
 
-export interface WorkflowBackupData {
-
+export interface CommandBackupData {
     version: number;
-
     updatedAt: string;
-
     groups: any[];
-
-    workflows: any[];
+    Commands: any[];
 }
 
 export class StorageService {
-    private readonly WORKFLOW_KEY = 'workflows';
+    private readonly COMMAND_KEY = 'commands';
     private readonly GROUP_KEY = 'groups';
     private readonly LAST_SYNC_KEY = 'lastSync';
 
@@ -28,74 +24,72 @@ export class StorageService {
         }
     }
 
-    getWorkflows(): Workflow[] {
+    getCommands(): Command[] {
         return this.context.globalState.get(
-            this.WORKFLOW_KEY,
+            this.COMMAND_KEY,
             []
         );
     }
 
-    async saveWorkflows(
-        workflows: Workflow[]
+    async saveCommands(
+        Commands: Command[]
     ): Promise<void> {
         await this.context.globalState.update(
-            this.WORKFLOW_KEY,
-            workflows
+            this.COMMAND_KEY,
+            Commands
         );
         this.changed();
     }
 
-    async addWorkflow(
-        workflow: Workflow
+    async addCommand(
+        Command: Command
     ): Promise<void> {
-        const workflows = this.getWorkflows();
-        workflows.push(workflow);
-        await this.saveWorkflows(
-            workflows
+        const Commands = this.getCommands();
+        Commands.push(Command);
+        await this.saveCommands(
+            Commands
         );
     }
 
-    async deleteWorkflow(
+    async deleteCommand(
         id: string
     ): Promise<void> {
-        const workflows =
-            this.getWorkflows()
+        const Commands =
+            this.getCommands()
                 .filter(
-                    workflow =>
-                        workflow.id !== id
+                    Command =>
+                        Command.id !== id
                 );
 
-        await this.saveWorkflows(
-            workflows
+        await this.saveCommands(
+            Commands
         );
         this.changed();
     }
 
-    async updateWorkflow(
-        updatedWorkflow: Workflow
+    async updateCommand(
+        updatedCommand: Command
     ): Promise<void> {
-        const workflows = this.getWorkflows();
+        const Commands = this.getCommands();
         const index =
-            workflows.findIndex(
-                workflow =>
-                    workflow.id ===
-                    updatedWorkflow.id
+            Commands.findIndex(
+                Command =>
+                    Command.id ===
+                    updatedCommand.id
             );
 
         if (index === -1) {
             return;
         }
 
-        workflows[index] =
-            updatedWorkflow;
-
-        await this.saveWorkflows(
-            workflows
+        Commands[index] = updatedCommand;
+        await this.saveCommands(
+            Commands
         );
         this.changed();
     }
 
-    getGroups(): WorkflowGroup[] {
+    getGroups(): CommandGroup[] {
         return this.context.globalState.get(
             this.GROUP_KEY,
             []
@@ -103,7 +97,7 @@ export class StorageService {
     }
 
     async addGroup(
-        group: WorkflowGroup
+        group: CommandGroup
     ): Promise<void> {
         const groups = this.getGroups();
         groups.push(group);
@@ -114,7 +108,7 @@ export class StorageService {
     }
 
     async saveGroups(
-        groups: WorkflowGroup[]
+        groups: CommandGroup[]
     ): Promise<void> {
         await this.context.globalState.update(
             this.GROUP_KEY,
@@ -124,7 +118,7 @@ export class StorageService {
     }
 
     async updateGroup(
-        updatedGroup: WorkflowGroup
+        updatedGroup: CommandGroup
     ): Promise<void> {
         const groups = this.getGroups();
         const index =
@@ -163,73 +157,73 @@ export class StorageService {
         this.changed();
     }
 
-    getWorkflowsByGroup(
+    getCommandsByGroup(
         groupId: string
     ) {
-        return this.getWorkflows()
+        return this.getCommands()
             .filter(
-                workflow =>
-                    workflow.groupId === groupId
+                Command =>
+                    Command.groupId === groupId
             );
     }
 
-    async deleteWorkflowsByGroup(
+    async deleteCommandsByGroup(
         groupId: string
     ): Promise<void> {
-        const workflows = this.getWorkflows()
+        const Commands = this.getCommands()
             .filter(
-                workflow =>
-                    workflow.groupId !== groupId
+                Command =>
+                    Command.groupId !== groupId
             );
 
-        await this.saveWorkflows(
-            workflows
+        await this.saveCommands(
+            Commands
         );
         this.changed();
     }
 
-    async moveWorkflows(
+    async moveCommands(
         fromGroupId: string,
         toGroupId: string
     ): Promise<void> {
-        const workflows = this.getWorkflows();
-        workflows.forEach(
-            workflow => {
+
+        const commands = this.getCommands();
+        commands.forEach(
+            command => {
                 if (
-                    workflow.groupId ===
-                    fromGroupId
+                    command.groupId === fromGroupId
                 ) {
-                    workflow.groupId =
-                        toGroupId;
+                    command.groupId = toGroupId;
                 }
             }
         );
 
-        await this.saveWorkflows(
-            workflows
+        await this.saveCommands(
+            commands
         );
+
         this.changed();
     }
 
     async toggleFavorite(
-        workflowId: string
+        CommandId: string
     ) {
-        const workflows = this.getWorkflows();
-        const workflow =
-            workflows.find(
+        const Commands = this.getCommands();
+        const Command =
+            Commands.find(
                 item =>
-                    item.id === workflowId
+                    item.id === CommandId
             );
 
-        if (!workflow) {
+        if (!Command) {
             return;
         }
 
-        workflow.favorite =
-            !workflow.favorite;
+        Command.favorite =
+            !Command.favorite;
 
-        await this.saveWorkflows(
-            workflows
+        await this.saveCommands(
+            Commands
         );
         this.changed();
     }
@@ -242,17 +236,17 @@ export class StorageService {
                     .toISOString(),
             groups:
                 this.getGroups(),
-            workflows:
-                this.getWorkflows()
+            Commands:
+                this.getCommands()
         };
     }
 
     async importData(
         data: any
     ): Promise<void> {
-        if (!data.groups || !data.workflows) {
+        if (!data.groups || !data.Commands) {
             throw new Error(
-                'Invalid workflow JSON format'
+                'Invalid Command JSON format'
             );
         }
 
@@ -260,54 +254,54 @@ export class StorageService {
             data.groups
         );
 
-        await this.saveWorkflows(
-            data.workflows
+        await this.saveCommands(
+            data.Commands
         );
     }
 
-    async moveWorkflow(
-        workflowId: string,
+    async moveCommand(
+        CommandId: string,
         groupId: string
     ): Promise<void> {
-        const workflows = this.getWorkflows();
-        const workflow =
-            workflows.find(
+        const Commands = this.getCommands();
+        const Command =
+            Commands.find(
                 item =>
-                    item.id === workflowId
+                    item.id === CommandId
             );
 
 
-        if (!workflow) {
+        if (!Command) {
             return;
         }
 
-        workflow.groupId =
+        Command.groupId =
             groupId;
 
-        await this.saveWorkflows(
-            workflows
+        await this.saveCommands(
+            Commands
         );
     }
 
     async replaceData(
-        groups: WorkflowGroup[],
-        workflows: Workflow[]
+        groups: CommandGroup[],
+        Commands: Command[]
     ): Promise<void> {
         await this.saveGroups(
             groups
         );
 
-        await this.saveWorkflows(
-            workflows
+        await this.saveCommands(
+            Commands
         );
     }
 
     async mergeData(
-        groups: WorkflowGroup[],
-        workflows: Workflow[]
+        groups: CommandGroup[],
+        Commands: Command[]
     ): Promise<void> {
         const currentGroups = this.getGroups();
-        const currentWorkflows = this.getWorkflows();
+        const currentCommands = this.getCommands();
 
         const newGroups =
             [
@@ -327,24 +321,24 @@ export class StorageService {
             }
         }
 
-        const newWorkflows =
+        const newCommands =
             [
-                ...currentWorkflows
+                ...currentCommands
             ];
 
         for (
-            const workflow
-            of workflows
+            const Command
+            of Commands
         ) {
             const exists =
-                currentWorkflows.some(
+                currentCommands.some(
                     item =>
-                        item.id === workflow.id
+                        item.id === Command.id
                 );
 
             if (!exists) {
-                newWorkflows.push(
-                    workflow
+                newCommands.push(
+                    Command
                 );
             }
         }
@@ -353,13 +347,13 @@ export class StorageService {
             newGroups
         );
 
-        await this.saveWorkflows(
-            newWorkflows
+        await this.saveCommands(
+            newCommands
         );
     }
 
     getBackupData()
-        : WorkflowBackupData {
+        : CommandBackupData {
         return {
             version: 1,
             updatedAt:
@@ -367,8 +361,8 @@ export class StorageService {
                     .toISOString(),
             groups:
                 this.getGroups(),
-            workflows:
-                this.getWorkflows()
+            Commands:
+                this.getCommands()
         };
     }
 

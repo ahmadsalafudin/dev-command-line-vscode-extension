@@ -1,6 +1,6 @@
-# dev-workflow-manager README
+# dev-command-line README
 
-This is the README for your extension "dev-workflow-manager". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "dev-command-line". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 

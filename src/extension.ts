@@ -1,30 +1,30 @@
 import * as vscode from 'vscode';
 import { GithubAuth } from './auth/githubAuth';
-import { addWorkflow } from './commands/addWorkflow';
-import { addWorkflowToGroup } from './commands/addWorkflowToGroup';
+import { addCommand } from './commands/addCommand';
+import { addCommandToGroup } from './commands/addCommandToGroup';
 import { connectGithub } from './commands/connectGithub';
 import { createGroup } from './commands/createGroup';
+import { deleteCommand } from './commands/deleteCommand';
 import { deleteGroup } from './commands/deleteGroup';
-import { deleteWorkflow } from './commands/deleteWorkflow';
+import { editCommand } from './commands/editCommand';
 import { editGroup } from './commands/editGroup';
-import { editWorkflow } from './commands/editWorkflow';
-import { exportWorkflow } from './commands/exportWorkflow';
+import { exportCommand } from './commands/exportCommand';
 import { githubMenu } from './commands/githubMenu';
-import { importWorkflow } from './commands/importWorkflow';
-import { listWorkflows } from './commands/listWorkflows';
-import { runWorkflow } from './commands/runWorkflow';
+import { importCommand } from './commands/importCommand';
+import { listCommands } from './commands/listCommands';
+import { runCommand } from './commands/runCommand';
 import { syncGithub } from './commands/syncGithub';
 import { StorageService } from './services/storageService';
 import { SyncManager } from './services/syncManager';
-import { WorkflowTreeItem } from './views/workflowTreeItem';
-import { WorkflowTreeProvider } from './views/workflowTreeProvider';
+import { CommandTreeItem } from './views/commandTreeItem';
+import { CommandTreeProvider } from './views/commandTreeProvider';
 
 export function activate(
 	context: vscode.ExtensionContext
 ) {
 
 	vscode.window.showInformationMessage(
-		'DEV WORKFLOW ACTIVATED'
+		'Dev Command Activated ✓'
 	);
 
 	let syncManager: SyncManager;
@@ -37,7 +37,7 @@ export function activate(
 		);
 
 	githubSyncStatus.text = "$(github)";
-	githubSyncStatus.tooltip = "Dev Workflow GitHub Sync";
+	githubSyncStatus.tooltip = "Dev Command GitHub Sync";
 	githubSyncStatus.show();
 	context.subscriptions.push(githubSyncStatus);
 
@@ -63,11 +63,11 @@ export function activate(
 				switch (status) {
 					case 'syncing':
 						githubSyncStatus.text = "$(sync~spin)";
-						githubSyncStatus.tooltip = "Syncing workflow to GitHub...";
+						githubSyncStatus.tooltip = "Syncing Command to GitHub...";
 						break;
 					case 'success':
 						githubSyncStatus.text = "$(github)";
-						githubSyncStatus.tooltip = "Workflow synced";
+						githubSyncStatus.tooltip = "Command synced";
 						break;
 					case 'error':
 						githubSyncStatus.text = "$(error)";
@@ -83,37 +83,37 @@ export function activate(
 
 	const connectGithubCommand =
 		vscode.commands.registerCommand(
-			'devWorkflow.connectGithub',
+			'devCommand.connectGithub',
 			() =>
 				connectGithub(
 					githubAuth
 				)
 		);
 
-	const addWorkflowCommand =
+	const addCommandCommand =
 		vscode.commands.registerCommand(
-			'devWorkflow.addWorkflow',
-			() => addWorkflow(storage)
+			'devCommand.addCommand',
+			() => addCommand(storage)
 		);
 
-	const runWorkflowCommand =
+	const runCommandCommand =
 		vscode.commands.registerCommand(
-			'devWorkflow.runWorkflow',
-			() => runWorkflow(storage)
+			'devCommand.runCommand',
+			() => runCommand(storage)
 		);
 
-	const listWorkflowCommand =
+	const listCommandCommand =
 		vscode.commands.registerCommand(
-			'devWorkflow.listWorkflows',
-			() => listWorkflows(storage)
+			'devCommand.listCommands',
+			() => listCommands(storage)
 		);
 
-	const deleteWorkflowCommand =
+	const deleteCommandCommand =
 		vscode.commands.registerCommand(
-			'devWorkflow.deleteWorkflow',
-			async (item: WorkflowTreeItem) => {
+			'devCommand.deleteCommand',
+			async (item: CommandTreeItem) => {
 
-				await deleteWorkflow(
+				await deleteCommand(
 					storage,
 					treeProvider,
 					item.idValue!
@@ -121,14 +121,14 @@ export function activate(
 			}
 		);
 
-	const editWorkflowCommand =
+	const editCommandCommand =
 		vscode.commands.registerCommand(
-			'devWorkflow.editWorkflow',
+			'devCommand.editCommand',
 			async (
-				item: WorkflowTreeItem
+				item: CommandTreeItem
 			) => {
 
-				await editWorkflow(
+				await editCommand(
 					storage,
 					treeProvider,
 					item.idValue!
@@ -138,7 +138,7 @@ export function activate(
 
 	const createGroupCommand =
 		vscode.commands.registerCommand(
-			'devWorkflow.createGroup',
+			'devCommand.createGroup',
 			async () => {
 
 				await createGroup(
@@ -151,8 +151,8 @@ export function activate(
 
 	const editGroupCommand =
 		vscode.commands.registerCommand(
-			'devWorkflow.editGroup',
-			async (item: WorkflowTreeItem) => {
+			'devCommand.editGroup',
+			async (item: CommandTreeItem) => {
 
 				await editGroup(
 					storage,
@@ -164,8 +164,8 @@ export function activate(
 
 	const deleteGroupCommand =
 		vscode.commands.registerCommand(
-			'devWorkflow.deleteGroup',
-			async (item: WorkflowTreeItem) => {
+			'devCommand.deleteGroup',
+			async (item: CommandTreeItem) => {
 
 				await deleteGroup(
 					storage,
@@ -176,12 +176,12 @@ export function activate(
 		);
 
 	const treeProvider =
-		new WorkflowTreeProvider(
+		new CommandTreeProvider(
 			storage
 		);
 
 	vscode.window.createTreeView(
-		'devWorkflowView',
+		'devCommandView',
 		{
 			treeDataProvider:
 				treeProvider,
@@ -191,11 +191,11 @@ export function activate(
 		}
 	);
 
-	const runWorkflowFromTree =
+	const runCommandFromTree =
 		vscode.commands.registerCommand(
-			'devWorkflow.runWorkflowFromTree',
+			'devCommand.runCommandFromTree',
 			async (
-				item: WorkflowTreeItem
+				item: CommandTreeItem
 			) => {
 
 				if (!item) {
@@ -203,24 +203,24 @@ export function activate(
 				}
 
 
-				const workflow =
+				const Command =
 					storage
-						.getWorkflows()
+						.getCommands()
 						.find(
-							workflow =>
-								workflow.id ===
+							Command =>
+								Command.id ===
 								item.idValue
 						);
 
 
-				if (!workflow) {
+				if (!Command) {
 					return;
 				}
 
 
 				const parameters =
 					extractParameters(
-						workflow.commands
+						Command.commands
 					);
 
 
@@ -255,7 +255,7 @@ export function activate(
 
 				const terminal =
 					vscode.window.createTerminal(
-						'Dev Workflow'
+						'Dev Command'
 					);
 
 
@@ -265,7 +265,7 @@ export function activate(
 
 				for (
 					const originalCommand
-					of workflow.commands
+					of Command.commands
 				) {
 
 					let command =
@@ -327,17 +327,17 @@ export function activate(
 
 	const refreshCommand =
 		vscode.commands.registerCommand(
-			'devWorkflow.refresh',
+			'devCommand.refresh',
 			() => treeProvider.refresh()
 		);
 
-	const addWorkflowToGroupCommand =
+	const addCommandToGroupCommand =
 		vscode.commands.registerCommand(
-			'devWorkflow.addWorkflowToGroup',
+			'devCommand.addCommandToGroup',
 			async (
-				item: WorkflowTreeItem
+				item: CommandTreeItem
 			) => {
-				await addWorkflowToGroup(
+				await addCommandToGroup(
 					storage,
 					item.idValue!
 				);
@@ -348,9 +348,9 @@ export function activate(
 
 	const toggleFavoriteCommand =
 		vscode.commands.registerCommand(
-			'devWorkflow.toggleFavorite',
+			'devCommand.toggleFavorite',
 			async (
-				item: WorkflowTreeItem
+				item: CommandTreeItem
 			) => {
 				await storage.toggleFavorite(
 					item.idValue!
@@ -360,29 +360,29 @@ export function activate(
 			}
 		);
 
-	const importWorkflowCommand =
+	const importCommandCommand =
 		vscode.commands.registerCommand(
-			'devWorkflow.importWorkflow',
+			'devCommand.importCommand',
 			() =>
-				importWorkflow(
+				importCommand(
 					storage,
 					treeProvider
 				)
 		);
 
 
-	const exportWorkflowCommand =
+	const exportCommandCommand =
 		vscode.commands.registerCommand(
-			'devWorkflow.exportWorkflow',
+			'devCommand.exportCommand',
 			() =>
-				exportWorkflow(
+				exportCommand(
 					storage
 				)
 		);
 
 	const syncGithubCommand =
 		vscode.commands.registerCommand(
-			'devWorkflow.syncGithub',
+			'devCommand.syncGithub',
 			async () => {
 				const session =
 					await vscode.authentication
@@ -409,7 +409,7 @@ export function activate(
 
 	const githubMenuCommand =
 		vscode.commands.registerCommand(
-			'devWorkflow.githubMenu',
+			'devCommand.githubMenu',
 			() =>
 				githubMenu(
 					context,
@@ -418,20 +418,20 @@ export function activate(
 		);
 
 	context.subscriptions.push(
-		addWorkflowCommand,
-		runWorkflowCommand,
-		listWorkflowCommand,
-		deleteWorkflowCommand,
-		editWorkflowCommand,
+		addCommandCommand,
+		runCommandCommand,
+		listCommandCommand,
+		deleteCommandCommand,
+		editCommandCommand,
 		createGroupCommand,
 		editGroupCommand,
 		deleteGroupCommand,
-		runWorkflowFromTree,
+		runCommandFromTree,
 		refreshCommand,
-		addWorkflowToGroupCommand,
+		addCommandToGroupCommand,
 		toggleFavoriteCommand,
-		importWorkflowCommand,
-		exportWorkflowCommand,
+		importCommandCommand,
+		exportCommandCommand,
 		connectGithubCommand,
 		syncGithubCommand,
 		githubMenuCommand

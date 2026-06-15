@@ -2,28 +2,24 @@ import * as vscode from 'vscode';
 import { StorageService } from '../services/storageService';
 import { pickGroup } from '../utils/groupPicker';
 
-export async function addWorkflow(
+export async function addCommand(
   storage: StorageService
 ) {
-
   const name =
     await vscode.window.showInputBox({
-      prompt: 'Workflow Name'
+      prompt: 'Command Name'
     });
 
   if (!name) {
     return;
   }
 
-  const cleanName =
-    name.trim();
-
-
+  const cleanName =    name.trim();
   const exists =
-    storage.getWorkflows()
+    storage.getCommands()
       .some(
-        workflow =>
-          workflow.name
+        Command =>
+          Command.name
             .trim()
             .toLowerCase() ===
           cleanName
@@ -31,11 +27,9 @@ export async function addWorkflow(
             .toLowerCase()
       );
 
-
   if (exists) {
-
     vscode.window.showWarningMessage(
-      'Workflow name already exists'
+      'Command name already exists'
     );
 
     return;
@@ -51,11 +45,9 @@ export async function addWorkflow(
   }
 
   const commands: string[] = [];
-
   let addMore = true;
 
   while (addMore) {
-
     const command =
       await vscode.window.showInputBox({
         prompt: 'Command'
@@ -66,7 +58,6 @@ export async function addWorkflow(
     }
 
     commands.push(command);
-
     const answer =
       await vscode.window.showQuickPick(
         ['Yes', 'No'],
@@ -80,7 +71,7 @@ export async function addWorkflow(
       answer === 'Yes';
   }
 
-  await storage.addWorkflow({
+  await storage.addCommand({
     id: Date.now().toString(),
     name: cleanName,
     groupId:
@@ -89,6 +80,6 @@ export async function addWorkflow(
   });
 
   vscode.window.showInformationMessage(
-    'Workflow saved'
+    'Command saved'
   );
 }

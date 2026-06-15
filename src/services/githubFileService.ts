@@ -1,26 +1,25 @@
 import { GithubService } from './githubService';
 
-
 export class GithubFileService {
-
-
   constructor(
-    private github:
-      GithubService
+    private github: GithubService
   ) { }
 
-
-
-
-  async uploadWorkflowFile(
+  async uploadCommandFile(
     data: any
   ) {
+    const user = await this.github.getUser();
+    const repo = 'dev-command-sync';
+    const exists =
+      await this.github.repositoryExists(
+        repo
+      );
 
-
-    const user =
-      await this.github.getUser();
-
-
+    if (!exists) {
+      await this.github.createRepository(
+        repo
+      );
+    }
 
     const content =
       Buffer.from(
@@ -34,26 +33,12 @@ export class GithubFileService {
           'base64'
         );
 
-
-
     await this.github.createOrUpdateFile({
-
-      owner:
-        user.login,
-
-      repo:
-        'dev-workflow-sync',
-
-      path:
-        'workflows.json',
-
+      owner: user.login,
+      repo,
+      path: 'commands.json',
       content,
-
-      message:
-        'Sync workflow data'
-
+      message: 'Sync Command data'
     });
-
   }
-
 }

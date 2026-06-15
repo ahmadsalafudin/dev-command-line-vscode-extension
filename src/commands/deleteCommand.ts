@@ -1,15 +1,15 @@
 import * as vscode from 'vscode';
 import { StorageService } from '../services/storageService';
 
-export async function deleteWorkflow(
+export async function deleteCommand(
   storage: StorageService,
   treeProvider: any,
-  workflowId: string
+  CommandId: string
 ) {
 
   const confirm =
     await vscode.window.showWarningMessage(
-      `Delete this workflow?`,
+      `Delete this Command?`,
       { modal: true },
       'Delete'
     );
@@ -18,9 +18,9 @@ export async function deleteWorkflow(
     return;
   }
 
-  await storage.deleteWorkflow(workflowId);
+  await storage.deleteCommand(CommandId);
 
-  vscode.window.showInformationMessage('Workflow deleted');
+  vscode.window.showInformationMessage('Command deleted');
 
   treeProvider.refresh();
 }

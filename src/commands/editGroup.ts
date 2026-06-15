@@ -7,47 +7,28 @@ export async function editGroup(
   groupId: string
 ) {
 
-  const groups =
-    storage.getGroups();
-
-
+  const groups = storage.getGroups();
   const group =
     groups.find(
       item =>
         item.id === groupId
     );
 
-
   if (!group) {
     return;
   }
 
-
-
   const newName =
     await vscode.window.showInputBox({
-
-      value:
-        group.name,
-
-      prompt:
-        'Group Name'
-
+      value: group.name,
+      prompt: 'Group Name'
     });
-
-
 
   if (!newName) {
     return;
   }
 
-
-
-  const cleanName =
-    newName.trim();
-
-
-
+  const cleanName = newName.trim();
   const exists =
     groups.some(
       item =>
@@ -59,29 +40,18 @@ export async function editGroup(
           .toLowerCase()
     );
 
-
-
   if (exists) {
-
     vscode.window.showWarningMessage(
       'Group name already exists'
     );
-
     return;
   }
 
-
-
   await storage.updateGroup({
-
     ...group,
-
     name:
       cleanName
-
   });
-
-
 
   vscode.window.showInformationMessage(
     'Group updated'

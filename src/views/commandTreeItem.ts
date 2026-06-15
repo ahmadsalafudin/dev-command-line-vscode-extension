@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-export class WorkflowTreeItem
+export class CommandTreeItem
   extends vscode.TreeItem {
 
   constructor(
@@ -8,7 +8,7 @@ export class WorkflowTreeItem
     collapsibleState:
       vscode.TreeItemCollapsibleState,
     public readonly type:
-      'group' | 'workflow' | 'favorite-root',
+      'group' | 'Command' | 'favorite-root',
     public readonly idValue?: string
   ) {
 

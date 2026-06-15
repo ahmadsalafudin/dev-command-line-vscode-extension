@@ -1,27 +1,27 @@
 import * as vscode from 'vscode';
 import { StorageService } from '../services/storageService';
-import { WorkflowTreeItem } from './workflowTreeItem';
+import { CommandTreeItem } from './commandTreeItem';
 
-export class WorkflowTreeProvider
+export class CommandTreeProvider
   implements
-  vscode.TreeDataProvider<WorkflowTreeItem>,
-  vscode.TreeDragAndDropController<WorkflowTreeItem> {
+  vscode.TreeDataProvider<CommandTreeItem>,
+  vscode.TreeDragAndDropController<CommandTreeItem> {
 
   readonly dragMimeTypes = [
-    'application/vnd.code.tree.devWorkflowView'
+    'application/vnd.code.tree.devCommandView'
   ];
 
   readonly dropMimeTypes = [
-    'application/vnd.code.tree.devWorkflowView'
+    'application/vnd.code.tree.devCommandView'
   ];
 
   handleDrag(
-    source: readonly WorkflowTreeItem[],
+    source: readonly CommandTreeItem[],
     dataTransfer: vscode.DataTransfer
   ) {
 
     dataTransfer.set(
-      'application/vnd.code.tree.devWorkflowView',
+      'application/vnd.code.tree.devCommandView',
       new vscode.DataTransferItem(
         source[0]
       )
@@ -30,55 +30,44 @@ export class WorkflowTreeProvider
   }
 
   async handleDrop(
-    target: WorkflowTreeItem | undefined,
+    target: CommandTreeItem | undefined,
     dataTransfer: vscode.DataTransfer
   ) {
-
     if (!target) {
       return;
     }
 
-
-    if (
-      target.type !== 'group'
-    ) {
+    if (target.type !== 'group') {
       return;
     }
 
-
     const item =
       dataTransfer.get(
-        'application/vnd.code.tree.devWorkflowView'
+        'application/vnd.code.tree.devCommandView'
       );
-
 
     if (!item) {
       return;
     }
 
-
     const source =
-      item.value as WorkflowTreeItem;
-
+      item.value as CommandTreeItem;
 
     if (
-      source.type !== 'workflow'
+      source.type !== 'Command'
     ) {
       return;
     }
 
-
-    await this.storage.moveWorkflow(
+    await this.storage.moveCommand(
       source.idValue!,
       target.idValue!
     );
 
-
     this.refresh();
 
-
     vscode.window.showInformationMessage(
-      'Workflow moved'
+      'Command moved'
     );
   }
 
@@ -88,42 +77,32 @@ export class WorkflowTreeProvider
   ) { }
 
   getTreeItem(
-    element: WorkflowTreeItem
+    element: CommandTreeItem
   ): vscode.TreeItem {
 
     return element;
   }
 
   getChildren(
-    element?: WorkflowTreeItem
-  ): Thenable<WorkflowTreeItem[]> {
+    element?: CommandTreeItem
+  ): Thenable<CommandTreeItem[]> {
 
     if (!element) {
-
       return Promise.resolve([
         this.getFavoriteRoot(),
         ...this.getGroups()
       ]);
-
     }
 
-    if (
-      element.type ===
-      'favorite-root'
-    ) {
-
+    if (element.type === 'favorite-root') {
       return Promise.resolve(
         this.getFavorites()
       );
-
     }
 
-    if (
-      element.type ===
-      'group'
-    ) {
+    if (element.type === 'group') {
       return Promise.resolve(
-        this.getWorkflows(
+        this.getCommands(
           element.idValue!
         )
       );
@@ -133,14 +112,14 @@ export class WorkflowTreeProvider
   }
 
   private getGroups():
-    WorkflowTreeItem[] {
+    CommandTreeItem[] {
 
     return this.storage
       .getGroups()
       .map(group => {
 
         const item =
-          new WorkflowTreeItem(
+          new CommandTreeItem(
             group.name,
             vscode.TreeItemCollapsibleState
               .Expanded,
@@ -155,37 +134,37 @@ export class WorkflowTreeProvider
       });
   }
 
-  private getWorkflows(
+  private getCommands(
     groupId: string
-  ): WorkflowTreeItem[] {
+  ): CommandTreeItem[] {
 
     return this.storage
-      .getWorkflowsByGroup(
+      .getCommandsByGroup(
         groupId
       )
-      .map(workflow => {
+      .map(Command => {
 
         const item =
-          new WorkflowTreeItem(
-            workflow.name,
+          new CommandTreeItem(
+            Command.name,
             vscode.TreeItemCollapsibleState.None,
-            'workflow',
-            workflow.id
+            'Command',
+            Command.id
           );
 
         item.contextValue =
-          'workflow';
+          'Command';
 
         item.command = {
           command:
-            'devWorkflow.runWorkflowFromTree',
+            'devCommand.runCommandFromTree',
 
           title:
-            'Run Workflow',
+            'Run Command',
 
           arguments:
             [
-              workflow.id
+              Command.id
             ]
         };
 
@@ -194,49 +173,45 @@ export class WorkflowTreeProvider
   }
 
   private getFavoriteRoot():
-    WorkflowTreeItem {
-
+    CommandTreeItem {
     const item =
-      new WorkflowTreeItem(
+      new CommandTreeItem(
         '⭐ Favorites',
         vscode.TreeItemCollapsibleState.Expanded,
         'favorite-root'
       );
 
-
     item.contextValue =
       'favorite-root';
 
-
     return item;
-
   }
 
   private getFavorites():
-    WorkflowTreeItem[] {
+    CommandTreeItem[] {
 
     return this.storage
-      .getWorkflows()
+      .getCommands()
       .filter(
-        workflow =>
-          workflow.favorite
+        Command =>
+          Command.favorite
       )
-      .map(workflow => {
+      .map(Command => {
 
         const item =
-          new WorkflowTreeItem(
-            `⭐ ${workflow.name}`,
+          new CommandTreeItem(
+            `⭐ ${Command.name}`,
             vscode.TreeItemCollapsibleState.None,
-            'workflow',
-            workflow.id
+            'Command',
+            Command.id
           );
 
         item.command = {
           command:
-            'devWorkflow.runWorkflowFromTree',
+            'devCommand.runCommandFromTree',
 
           title:
-            'Run Workflow',
+            'Run Command',
 
           arguments:
             [
@@ -245,7 +220,7 @@ export class WorkflowTreeProvider
         };
 
         item.contextValue =
-          'workflow';
+          'Command';
 
         return item;
       });

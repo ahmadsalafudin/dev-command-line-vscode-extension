@@ -69,7 +69,7 @@ export class SyncManager {
           github
         );
 
-      await file.uploadWorkflowFile(
+      await file.uploadCommandFile(
         this.storage.getBackupData()
       );
 

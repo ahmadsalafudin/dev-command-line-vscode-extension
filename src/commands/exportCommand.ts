@@ -2,56 +2,27 @@ import * as vscode from 'vscode';
 import { StorageService } from '../services/storageService';
 
 
-export async function exportWorkflow(
+export async function exportCommand(
   storage: StorageService
 ) {
-
-
   const data = {
-
-    version:
-      1,
-
-
+    version: 1,
     exportedAt:
       new Date()
         .toISOString(),
 
-
-    description:
-      'Dev Workflow Manager backup',
-
-
-    groups:
-      storage.getGroups(),
-
-
-    workflows:
-      storage.getWorkflows()
-
+    description: 'Dev Command Line backup',
+    groups: storage.getGroups(),
+    Commands: storage.getCommands()
   };
-
-
 
   const uri =
     await vscode.window.showSaveDialog({
-
       filters: {
-
-        JSON:
-          [
-            'json'
-          ]
-
+        JSON: ['json']
       },
-
-      saveLabel:
-        'Export Backup'
-
+      saveLabel: 'Export Backup'
     });
-
-
-
   if (!uri) {
     return;
   }

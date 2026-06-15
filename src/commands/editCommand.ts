@@ -1,29 +1,29 @@
 import * as vscode from 'vscode';
 import { StorageService } from '../services/storageService';
 
-export async function editWorkflow(
+export async function editCommand(
   storage: StorageService,
   treeProvider: any,
-  workflowId: string
+  CommandId: string
 ) {
 
-  const workflow =
-    storage.getWorkflows()
+  const Command =
+    storage.getCommands()
       .find(
-        workflow =>
-          workflow.id === workflowId
+        Command =>
+          Command.id === CommandId
       );
 
 
-  if (!workflow) {
+  if (!Command) {
     return;
   }
 
 
   const newName =
     await vscode.window.showInputBox({
-      prompt: 'Workflow Name',
-      value: workflow.name
+      prompt: 'Command Name',
+      value: Command.name
     });
 
 
@@ -32,10 +32,10 @@ export async function editWorkflow(
   }
 
   const exists =
-    storage.getWorkflows()
+    storage.getCommands()
       .some(
         item =>
-          item.id !== workflow.id &&
+          item.id !== Command.id &&
           item.name
             .trim()
             .toLowerCase() ===
@@ -46,9 +46,8 @@ export async function editWorkflow(
 
 
   if (exists) {
-
     vscode.window.showWarningMessage(
-      'Workflow name already exists'
+      'Command name already exists'
     );
 
     return;
@@ -56,21 +55,17 @@ export async function editWorkflow(
 
 
   if (exists) {
-
     vscode.window.showWarningMessage(
       'Group name already exists'
     );
-
     return;
   }
 
-
   const commands: string[] = [];
-
 
   for (
     const command
-    of workflow.commands
+    of Command.commands
   ) {
 
     const edited =
@@ -81,23 +76,15 @@ export async function editWorkflow(
           command
       });
 
-
     if (edited === undefined) {
       return;
     }
 
-
-    commands.push(
-      edited
-    );
+    commands.push(edited);
   }
 
-
   let addMore = true;
-
-
   while (addMore) {
-
     const answer =
       await vscode.window.showQuickPick(
         [
@@ -110,15 +97,11 @@ export async function editWorkflow(
         }
       );
 
-
-    addMore =
-      answer === 'Yes';
-
+    addMore = answer === 'Yes';
 
     if (!addMore) {
       break;
     }
-
 
     const command =
       await vscode.window.showInputBox({
@@ -126,28 +109,23 @@ export async function editWorkflow(
           'New Command'
       });
 
-
     if (command) {
-
       commands.push(
         command
       );
     }
   }
 
-
-  await storage.updateWorkflow({
-    ...workflow,
+  await storage.updateCommand({
+    ...Command,
     name:
       newName,
     commands
   });
 
-
   vscode.window.showInformationMessage(
-    'Workflow updated'
+    'Command updated'
   );
-
 
   treeProvider.refresh();
 }

@@ -1,38 +1,38 @@
 import * as vscode from 'vscode';
 import { StorageService } from '../services/storageService';
 
-export async function runWorkflow(
+export async function runCommand(
     storage: StorageService,
-    workflowId?: string
+    CommandId?: string
 ) {
 
-    const workflows =
-        storage.getWorkflows();
+    const Commands =
+        storage.getCommands();
 
 
-    if (!workflows.length) {
+    if (!Commands.length) {
 
         vscode.window.showWarningMessage(
-            'No workflow found'
+            'No Command found'
         );
 
         return;
     }
 
 
-    let workflow;
+    let Command;
 
 
     /**
      * Jika dipanggil dari sidebar
-     * langsung gunakan workflow id
+     * langsung gunakan Command id
      */
-    if (workflowId) {
+    if (CommandId) {
 
-        workflow =
-            workflows.find(
+        Command =
+            Commands.find(
                 item =>
-                    item.id === workflowId
+                    item.id === CommandId
             );
 
     }
@@ -48,7 +48,7 @@ export async function runWorkflow(
 
         const selected =
             await vscode.window.showQuickPick(
-                workflows.map(item => {
+                Commands.map(item => {
 
                     const group =
                         groups.find(
@@ -65,14 +65,14 @@ export async function runWorkflow(
                         description:
                             group?.name,
 
-                        workflow:
+                        Command:
                             item
                     };
 
                 }),
                 {
                     placeHolder:
-                        'Select Workflow'
+                        'Select Command'
                 }
             );
 
@@ -82,15 +82,15 @@ export async function runWorkflow(
         }
 
 
-        workflow =
-            selected.workflow;
+        Command =
+            selected.Command;
     }
 
 
-    if (!workflow) {
+    if (!Command) {
 
         vscode.window.showWarningMessage(
-            'Workflow not found'
+            'Command not found'
         );
 
         return;
@@ -109,7 +109,7 @@ export async function runWorkflow(
      */
     const parameters =
         extractParameters(
-            workflow.commands
+            Command.commands
         );
 
 
@@ -151,7 +151,7 @@ export async function runWorkflow(
 
     const terminal =
         vscode.window.createTerminal(
-            'Dev Workflow'
+            'Dev Command'
         );
 
 
@@ -168,7 +168,7 @@ export async function runWorkflow(
      */
     for (
         const originalCommand
-        of workflow.commands
+        of Command.commands
     ) {
 
         let command =
