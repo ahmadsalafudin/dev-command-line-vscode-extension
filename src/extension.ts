@@ -1,18 +1,20 @@
 import * as vscode from 'vscode';
-
-import { StorageService } from './services/storageService';
-
+import { GithubAuth } from './auth/githubAuth';
 import { addWorkflow } from './commands/addWorkflow';
 import { addWorkflowToGroup } from './commands/addWorkflowToGroup';
+import { connectGithub } from './commands/connectGithub';
 import { createGroup } from './commands/createGroup';
 import { deleteGroup } from './commands/deleteGroup';
 import { deleteWorkflow } from './commands/deleteWorkflow';
 import { editGroup } from './commands/editGroup';
 import { editWorkflow } from './commands/editWorkflow';
 import { exportWorkflow } from './commands/exportWorkflow';
+import { githubMenu } from './commands/githubMenu';
 import { importWorkflow } from './commands/importWorkflow';
 import { listWorkflows } from './commands/listWorkflows';
 import { runWorkflow } from './commands/runWorkflow';
+import { syncGithub } from './commands/syncGithub';
+import { StorageService } from './services/storageService';
 import { WorkflowTreeItem } from './views/workflowTreeItem';
 import { WorkflowTreeProvider } from './views/workflowTreeProvider';
 
@@ -30,6 +32,18 @@ export function activate(
 
 	const storage =
 		new StorageService(context);
+
+	const githubAuth =
+		new GithubAuth(context);
+
+	const connectGithubCommand =
+		vscode.commands.registerCommand(
+			'devWorkflow.connectGithub',
+			() =>
+				connectGithub(
+					githubAuth
+				)
+		);
 
 	const addWorkflowCommand =
 		vscode.commands.registerCommand(
@@ -212,7 +226,6 @@ export function activate(
 					let command =
 						originalCommand;
 
-
 					for (
 						const [
 							key,
@@ -220,7 +233,6 @@ export function activate(
 						]
 						of Object.entries(values)
 					) {
-
 						command =
 							command.replaceAll(
 								`{${key}}`,
@@ -228,12 +240,10 @@ export function activate(
 							);
 					}
 
-
 					terminal.sendText(
 						command
 					);
 				}
-
 			}
 		);
 
@@ -247,27 +257,21 @@ export function activate(
 		const regex =
 			/{([^}]+)}/g;
 
-
 		for (
 			const command
 			of commands
 		) {
-
 			let match;
-
 
 			while (
 				(match =
 					regex.exec(command))
 				!== null
 			) {
-
 				parameters.add(
 					match[1]
 				);
-
 			}
-
 		}
 
 
@@ -288,7 +292,6 @@ export function activate(
 			async (
 				item: WorkflowTreeItem
 			) => {
-
 				await addWorkflowToGroup(
 					storage,
 					item.idValue!
@@ -304,7 +307,6 @@ export function activate(
 			async (
 				item: WorkflowTreeItem
 			) => {
-
 				await storage.toggleFavorite(
 					item.idValue!
 				);
@@ -333,6 +335,43 @@ export function activate(
 				)
 		);
 
+	const syncGithubCommand =
+		vscode.commands.registerCommand(
+			'devWorkflow.syncGithub',
+			async () => {
+				const session =
+					await vscode.authentication
+						.getSession(
+							'github',
+							[
+								'repo'
+							],
+							{
+								createIfNone: true
+							}
+						);
+
+				if (!session) {
+					return;
+				}
+
+				await syncGithub(
+					storage,
+					session.accessToken
+				);
+			}
+		);
+
+	const githubMenuCommand =
+		vscode.commands.registerCommand(
+			'devWorkflow.githubMenu',
+			() =>
+				githubMenu(
+					context,
+					storage
+				)
+		);
+
 	context.subscriptions.push(
 		addWorkflowCommand,
 		runWorkflowCommand,
@@ -347,7 +386,10 @@ export function activate(
 		addWorkflowToGroupCommand,
 		toggleFavoriteCommand,
 		importWorkflowCommand,
-		exportWorkflowCommand
+		exportWorkflowCommand,
+		connectGithubCommand,
+		syncGithubCommand,
+		githubMenuCommand
 	);
 }
 

@@ -2,6 +2,17 @@ import * as vscode from 'vscode';
 import { Workflow } from '../models/workflow';
 import { WorkflowGroup } from '../models/workflowGroup';
 
+export interface WorkflowBackupData {
+
+    version: number;
+
+    updatedAt: string;
+
+    groups: any[];
+
+    workflows: any[];
+}
+
 export class StorageService {
 
     private readonly WORKFLOW_KEY = 'workflows';
@@ -412,5 +423,28 @@ export class StorageService {
         await this.saveWorkflows(
             newWorkflows
         );
+    }
+
+    getBackupData()
+        : WorkflowBackupData {
+
+
+        return {
+
+            version: 1,
+
+            updatedAt:
+                new Date()
+                    .toISOString(),
+
+
+            groups:
+                this.getGroups(),
+
+
+            workflows:
+                this.getWorkflows()
+
+        };
     }
 }

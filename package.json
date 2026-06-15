@@ -102,6 +102,16 @@
         "command": "devWorkflow.exportWorkflow",
         "title": "Export Workflow",
         "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "devWorkflow.connectGithub",
+        "title": "Connect to GitHub",
+        "icon": "$(github)"
+      },
+      {
+        "command": "devWorkflow.githubMenu",
+        "title": "GitHub",
+        "icon": "$(github)"
       }
     ],
     "viewsContainers": {
@@ -169,17 +179,23 @@
         {
           "command": "devWorkflow.createGroup",
           "when": "view == devWorkflowView",
-          "group": "navigation"
+          "group": "navigation@1"
         },
         {
           "command": "devWorkflow.importWorkflow",
           "when": "view == devWorkflowView",
-          "group": "navigation"
+          "group": "navigation@2"
         },
         {
           "command": "devWorkflow.exportWorkflow",
           "when": "view == devWorkflowView",
-          "group": "navigation"
+          "group": "navigation@3"
+        },
+        {
+          "command": "devWorkflow.githubMenu",
+          "when": "view == devWorkflowView",
+          "group": "navigation@4",
+          "icon": "$(github)"
         }
       ]
     }
@@ -212,6 +228,7 @@
     "typescript-eslint": "^8.56.1"
   },
   "dependencies": {
+    "@octokit/rest": "^22.0.1",
     "uuid": "^14.0.0"
   }
 }
