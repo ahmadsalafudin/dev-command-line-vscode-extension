@@ -10,52 +10,31 @@
 
 ---
 
-## Overview
+## 1. Menu
 
-**Dev Command Line** is a VS Code extension that helps developers save, organize, and execute frequently used terminal commands.
+Berikut adalah daftar menu yang tersedia di sidebar **Dev Command Line**:
 
-Instead of repeatedly typing the same commands, you can store your commands once, group them, and run them anytime from the VS Code sidebar.
-
-Suitable for:
-
-- Development workflows
-- Project setup commands
-- Build commands
-- Deployment commands
-- Database migration commands
-- Docker commands
-
----
-
-# Features
-
-## Command Management
-
-Create and manage reusable commands.
-
-Available actions:
-
-- Add command
-- Edit command
-- Delete command
-- Run command directly from sidebar
-
-Example:
-
-```bash
-npm install
-npm run dev
-php artisan migrate
-docker compose up
-```
+| Menu                   | Deskripsi                                             |
+| ---------------------- | ----------------------------------------------------- |
+| **Create Group** | Membuat grup untuk mengelompokkan perintah            |
+| **Add Command**  | Menambahkan perintah baru yang bisa digunakan kembali |
+| **Run**          | Menjalankan perintah langsung dari sidebar            |
+| **Edit**         | Mengubah nama atau isi perintah                       |
+| **Delete**       | Menghapus perintah atau grup                          |
+| **Favorite**     | Menandai perintah sebagai favorit agar mudah diakses  |
+| **Import**       | Memulihkan koleksi perintah dari file JSON            |
+| **Export**       | Menyimpan semua perintah ke file JSON sebagai backup  |
+| **GitHub**       | Mengelola sinkronisasi perintah dengan GitHub         |
 
 ---
 
-## Command Grouping
+### Create Group
 
-Organize commands into groups.
+Kelompokkan perintah agar lebih terorganisir.
 
-Example:
+![Create Group](resources/create-group.png)
+
+Contoh:
 
 ```
 Frontend
@@ -67,228 +46,151 @@ Backend
  ├── php artisan serve
 ```
 
-Features:
+---
 
-- Create group
-- Edit group
-- Delete group
-- Move commands between groups
+### Add & Run Command
+
+Tambahkan perintah sekali, jalankan kapan saja dengan klik ikon ▶️.
+
+![Add Command](resources/add-command.png)
+
+Contoh perintah yang bisa disimpan:
+
+```bash
+npm install
+npm run dev
+```
 
 ---
 
-## Favorite Commands
+### Favorite
 
-Mark frequently used commands as favorites for easier access.
+Tandai perintah yang paling sering digunakan sebagai favorit agar mudah ditemukan.
+
+![Favorite](resources/favorite.png)
 
 ---
 
-## Command Parameters
+### Command Parameters
 
-Use dynamic parameters inside commands.
+Gunakan parameter dinamis di dalam perintah.
 
-Example:
+![Command Parameters](resources/parameters.png)
+
+Contoh perintah:
 
 ```
-docker logs {container}
+php artisan make:model {modelName} -m
 ```
 
-When executed, Dev Command Line will ask:
+Saat dijalankan, akan muncul prompt:
 
 ```
 Value for container:
 ```
 
-Input:
-
-```
-my-app
-```
-
-Result:
-
-```
-docker logs my-app
-```
+Input: `Marketplace` → Hasil: `php artisan make:model {Marketplace} -m `
 
 ---
 
-# Import & Export
+### Import & Export
 
-Backup and restore your command collection using JSON.
+Backup dan pulihkan koleksi perintah menggunakan file JSON.
 
-## Export
+![Import Export](resources/import-export.png)
 
-Export all commands and groups into a JSON file.
+Berguna untuk:
 
-## Import
-
-Restore commands from JSON backup.
-
-Useful for:
-
-- Moving to another laptop
-- Sharing command templates
-- Backup purposes
+- Pindah ke laptop baru
+- Berbagi template perintah dengan tim
+- Keperluan backup
 
 ---
 
-# GitHub Sync
+### GitHub Sync
 
-Sync your commands with your private GitHub repository.
+Sinkronkan perintah ke repositori GitHub pribadi Anda.
 
-Features:
+![GitHub Sync](resources/github-sync.png)
 
-- Connect GitHub account
-- Automatically create private repository
-- Upload command backup
-- Automatic synchronization after changes
-- Restore commands on another device
+Fitur:
 
-Repository example:
+- Hubungkan akun GitHub
+- Buat repositori privat secara otomatis
+- Upload backup perintah
+- Sinkronisasi otomatis setiap ada perubahan
+- Pulihkan perintah di perangkat lain
+
+Contoh struktur repositori:
 
 ```
 dev-command-sync
-
 └── commands.json
 ```
 
-Your data remains in your own private GitHub account.
+Data tetap tersimpan di akun GitHub pribadi Anda.
 
 ---
 
-# How To Use
+## 2. Pengembangan
 
-## Create Group
-
-1. Open Dev Command Line sidebar
-2. Click **Create Group**
-3. Enter group name
-
-Example:
+Proyek ini bersifat open-source. Silakan **fork** repositori ini dan lanjutkan pengembangannya!
 
 ```
-Laravel Project
+https://github.com/username/dev-command-line
 ```
 
----
+### Cara Menjalankan (Development)
 
-## Add Command
-
-1. Click **Add Command**
-2. Enter command name
-3. Enter terminal command
-4. Select group
-
-Example:
-
-Name:
-
-```
-Run Migration
-```
-
-Command:
-
-```bash
-php artisan migrate
-```
-
----
-
-## Run Command
-
-Click the play icon beside a command.
-
-The command will execute automatically in the VS Code terminal.
-
----
-
-# Sidebar Menu
-
-| Menu | Description |
-|---|---|
-| Create Group | Create command group |
-| Add Command | Add reusable command |
-| Run | Execute command |
-| Edit | Update command |
-| Delete | Remove command |
-| Favorite | Mark favorite command |
-| Import | Restore JSON backup |
-| Export | Create JSON backup |
-| GitHub | Manage GitHub synchronization |
-
----
-
-# Installation
-
-Install from VS Code Marketplace:
-
-Search:
-
-```
-Dev Command Line
-```
-
-Or install manually:
-
-1. Download `.vsix`
-2. Open VS Code
-3. Open Command Palette
-
-```
-Extensions: Install from VSIX
-```
-
-4. Select the file
-
----
-
-# Development
-
-Install dependencies:
+**Install dependencies:**
 
 ```bash
 npm install
 ```
 
-Compile:
+**Compile:**
 
 ```bash
 npm run compile
 ```
 
-Run extension:
+**Jalankan extension:**
 
 ```
-Press F5 in VS Code
+Tekan F5 di VS Code
 ```
+
+Extension akan terbuka di jendela VS Code baru untuk pengujian.
 
 ---
 
-# Roadmap
+### Roadmap
 
-Future improvements:
+Rencana pengembangan ke depan:
 
 - Team command sharing
 - Workflow templates
 - Execution history
 - Command logs
-- JetBrains plugin support
+
+Kontribusi dan ide baru sangat disambut! Buka *issue* atau *pull request* di repositori.
 
 ---
 
-# Support Development
+## 3. Lisensi & Dukungan
 
-If this extension helps your daily workflow, you can support development:
+### Lisensi
 
-☕ Trakteer Kopi:
-
-https://trakteer.id/ahmadsalafudin
-
-Thank you for supporting open-source development ❤️
+MIT License — bebas digunakan, dimodifikasi, dan didistribusikan.
 
 ---
 
-# License
+### Dukung Pengembangan
 
-MIT License
+Jika extension ini membantu workflow harian Anda, Anda bisa mendukung pengembangannya:
+
+☕ **Support me:**
+
+[https://sociabuzz.com/ahmadsalafudin](https://sociabuzz.com/ahmadsalafudin)
+
+Terima kasih telah mendukung pengembangan open-source ❤️
