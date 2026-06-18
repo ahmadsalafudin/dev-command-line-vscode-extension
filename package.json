@@ -1,14 +1,38 @@
 {
   "name": "dev-command-line",
   "displayName": "Dev Command Line",
-  "description": "Run reusable development Commands",
-  "version": "0.0.1",
+  "description": "Manage, organize, and run reusable development commands directly inside VS Code.",
+  "version": "1.0.0",
+  "publisher": "devware-engineers",
+  "icon": "resources/command.png",
   "engines": {
-    "vscode": "^1.107.0"
+    "vscode": "^1.120.0"
   },
   "categories": [
     "Other"
   ],
+  "keywords": [
+    "command",
+    "developer",
+    "terminal",
+    "workflow",
+    "automation",
+    "docker",
+    "development"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ahmadsalafudin/dev-command-line.git"
+  },
+  "homepage": "https://github.com/ahmadsalafudin/dev-command-line",
+  "bugs": {
+    "url": "https://github.com/ahmadsalafudin/dev-command-line/issues"
+  },
+  "license": "MIT",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {

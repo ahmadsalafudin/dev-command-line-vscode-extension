@@ -1,7 +1,7 @@
 # Dev Command Line
 
 <p align="center">
-  <img src="resources/command.svg" width="120" />
+  <img src="resources/command.png" width="120" />
 </p>
 
 <p align="center">
@@ -14,8 +14,8 @@
 
 Berikut adalah daftar menu yang tersedia di sidebar **Dev Command Line**:
 
-| Menu                   | Deskripsi                                             |
-| ---------------------- | ----------------------------------------------------- |
+| Menu             | Deskripsi                                             |
+| ---------------- | ----------------------------------------------------- |
 | **Create Group** | Membuat grup untuk mengelompokkan perintah            |
 | **Add Command**  | Menambahkan perintah baru yang bisa digunakan kembali |
 | **Run**          | Menjalankan perintah langsung dari sidebar            |
