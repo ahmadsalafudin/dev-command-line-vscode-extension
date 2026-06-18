@@ -5,8 +5,8 @@ import { CommandGroup } from '../models/commandGroup';
 export interface CommandBackupData {
     version: number;
     updatedAt: string;
-    groups: any[];
-    Commands: any[];
+    groups: CommandGroup[];
+    Commands: Command[];
 }
 
 export class StorageService {
@@ -31,9 +31,7 @@ export class StorageService {
         );
     }
 
-    async saveCommands(
-        Commands: Command[]
-    ): Promise<void> {
+    async saveCommands(Commands: Command[]): Promise<void> {
         await this.context.globalState.update(
             this.COMMAND_KEY,
             Commands
@@ -41,9 +39,7 @@ export class StorageService {
         this.changed();
     }
 
-    async addCommand(
-        Command: Command
-    ): Promise<void> {
+    async addCommand(Command: Command): Promise<void> {
         const Commands = this.getCommands();
         Commands.push(Command);
         await this.saveCommands(
@@ -51,9 +47,7 @@ export class StorageService {
         );
     }
 
-    async deleteCommand(
-        id: string
-    ): Promise<void> {
+    async deleteCommand(id: string): Promise<void> {
         const Commands =
             this.getCommands()
                 .filter(
@@ -67,9 +61,7 @@ export class StorageService {
         this.changed();
     }
 
-    async updateCommand(
-        updatedCommand: Command
-    ): Promise<void> {
+    async updateCommand(updatedCommand: Command): Promise<void> {
         const Commands = this.getCommands();
         const index =
             Commands.findIndex(
@@ -96,9 +88,7 @@ export class StorageService {
         );
     }
 
-    async addGroup(
-        group: CommandGroup
-    ): Promise<void> {
+    async addGroup(group: CommandGroup): Promise<void> {
         const groups = this.getGroups();
         groups.push(group);
         await this.saveGroups(
@@ -107,9 +97,7 @@ export class StorageService {
         this.changed();
     }
 
-    async saveGroups(
-        groups: CommandGroup[]
-    ): Promise<void> {
+    async saveGroups(groups: CommandGroup[]): Promise<void> {
         await this.context.globalState.update(
             this.GROUP_KEY,
             groups
@@ -117,9 +105,7 @@ export class StorageService {
         this.changed();
     }
 
-    async updateGroup(
-        updatedGroup: CommandGroup
-    ): Promise<void> {
+    async updateGroup(updatedGroup: CommandGroup): Promise<void> {
         const groups = this.getGroups();
         const index =
             groups.findIndex(
@@ -141,9 +127,7 @@ export class StorageService {
         this.changed();
     }
 
-    async deleteGroup(
-        groupId: string
-    ) {
+    async deleteGroup(groupId: string) {
         const groups =
             this.getGroups()
                 .filter(
@@ -157,9 +141,7 @@ export class StorageService {
         this.changed();
     }
 
-    getCommandsByGroup(
-        groupId: string
-    ) {
+    getCommandsByGroup(groupId: string) {
         return this.getCommands()
             .filter(
                 Command =>
@@ -182,11 +164,7 @@ export class StorageService {
         this.changed();
     }
 
-    async moveCommands(
-        fromGroupId: string,
-        toGroupId: string
-    ): Promise<void> {
-
+    async moveCommands(fromGroupId: string, toGroupId: string): Promise<void> {
         const commands = this.getCommands();
         commands.forEach(
             command => {
@@ -205,23 +183,18 @@ export class StorageService {
         this.changed();
     }
 
-    async toggleFavorite(
-        CommandId: string
-    ) {
+    async toggleFavorite(CommandId: string) {
         const Commands = this.getCommands();
         const Command =
             Commands.find(
-                item =>
-                    item.id === CommandId
+                item => item.id === CommandId
             );
 
         if (!Command) {
             return;
         }
 
-        Command.favorite =
-            !Command.favorite;
-
+        Command.favorite = !Command.favorite;
         await this.saveCommands(
             Commands
         );
@@ -241,9 +214,7 @@ export class StorageService {
         };
     }
 
-    async importData(
-        data: any
-    ): Promise<void> {
+    async importData(data: any): Promise<void> {
         if (!data.groups || !data.Commands) {
             throw new Error(
                 'Invalid Command JSON format'
@@ -259,34 +230,25 @@ export class StorageService {
         );
     }
 
-    async moveCommand(
-        CommandId: string,
-        groupId: string
-    ): Promise<void> {
+    async moveCommand(CommandId: string, groupId: string): Promise<void> {
         const Commands = this.getCommands();
         const Command =
             Commands.find(
-                item =>
-                    item.id === CommandId
+                item => item.id === CommandId
             );
-
 
         if (!Command) {
             return;
         }
 
-        Command.groupId =
-            groupId;
-
+        Command.groupId = groupId;
+        Command.updatedAt = new Date().toISOString();
         await this.saveCommands(
             Commands
         );
     }
 
-    async replaceData(
-        groups: CommandGroup[],
-        Commands: Command[]
-    ): Promise<void> {
+    async replaceData(groups: CommandGroup[], Commands: Command[]): Promise<void> {
         await this.saveGroups(
             groups
         );
@@ -296,60 +258,94 @@ export class StorageService {
         );
     }
 
-    async mergeData(
-        groups: CommandGroup[],
-        Commands: Command[]
-    ): Promise<void> {
-        const currentGroups = this.getGroups();
-        const currentCommands = this.getCommands();
+    async mergeData(remoteGroups: CommandGroup[], remoteCommands: Command[]): Promise<void> {
+        const localGroups = this.getGroups();
+        const localCommands = this.getCommands();
+        const mergedGroups = [...localGroups];
 
-        const newGroups =
-            [
-                ...currentGroups
-            ];
-        for (const group of groups) {
-            const exists =
-                currentGroups.some(
+        for (const remote of remoteGroups) {
+            const sameId =
+                mergedGroups.find(
                     item =>
-                        item.id === group.id
+                        item.id === remote.id
                 );
 
-            if (!exists) {
-                newGroups.push(
-                    group
+
+            if (sameId) {
+                if (sameId.updatedAt < remote.updatedAt) {
+                    Object.assign(
+                        sameId,
+                        remote
+                    );
+                }
+
+                continue;
+            }
+
+            const sameName =
+                mergedGroups.find(
+                    item =>
+                        item.name.toLowerCase() === remote.name.toLowerCase()
                 );
+
+            if (!sameName) {
+                mergedGroups.push(remote);
             }
         }
 
-        const newCommands =
-            [
-                ...currentCommands
-            ];
+        const mergedCommands = [...localCommands];
 
-        for (
-            const Command
-            of Commands
-        ) {
-            const exists =
-                currentCommands.some(
+        for (const remote of remoteCommands) {
+            const sameId =
+                mergedCommands.find(
+                    item => item.id === remote.id
+                );
+
+            if (sameId) {
+                if (sameId.updatedAt < remote.updatedAt) {
+                    Object.assign(sameId, remote);
+                }
+
+                continue;
+            }
+
+            const sameContent =
+                mergedCommands.find(
                     item =>
-                        item.id === Command.id
+                        item.name.toLowerCase() === remote.name.toLowerCase()
+                        &&
+                        JSON.stringify(item.commands) === JSON.stringify(remote.commands)
                 );
 
-            if (!exists) {
-                newCommands.push(
-                    Command
+            if (sameContent) {
+                continue;
+            }
+
+            const sameName =
+                mergedCommands.find(
+                    item => item.name.toLowerCase() === remote.name.toLowerCase()
                 );
+
+            if (sameName) {
+                mergedCommands.push({
+                    ...remote,
+                    id: Date.now().toString(),
+                    name: remote.name
+                        + ' (GitHub)'
+                });
+            } else {
+                mergedCommands.push(remote);
             }
         }
 
         await this.saveGroups(
-            newGroups
+            mergedGroups
         );
 
         await this.saveCommands(
-            newCommands
+            mergedCommands
         );
+
     }
 
     getBackupData()
@@ -377,6 +373,13 @@ export class StorageService {
         await this.context.globalState.update(
             this.LAST_SYNC_KEY,
             new Date().toISOString()
+        );
+    }
+
+    async clearLastSync(): Promise<void> {
+        await this.context.globalState.update(
+            this.LAST_SYNC_KEY,
+            undefined
         );
     }
 }

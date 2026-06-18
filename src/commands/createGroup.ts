@@ -33,11 +33,9 @@ export async function createGroup(
 
 
     await storage.addGroup({
-        id:
-            Date.now()
-                .toString(),
-        name:
-            cleanName
+        id: Date.now().toString(),
+        name: cleanName,
+        updatedAt: new Date().toISOString()
     });
 
     vscode.window.showInformationMessage(

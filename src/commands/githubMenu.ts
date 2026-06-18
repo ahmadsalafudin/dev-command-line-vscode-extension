@@ -1,66 +1,57 @@
 import * as vscode from 'vscode';
+import { GithubStateService } from '../services/githubStateService';
 import { StorageService } from '../services/storageService';
-import { initialSync } from './initialSync';
 
+export async function githubMenu(context: vscode.ExtensionContext, storage: StorageService) {
+  const githubState =
+    new GithubStateService(
+      context
+    );
 
-export async function githubMenu(
-  context: vscode.ExtensionContext,
-  storage: StorageService
-) {
   const session =
     await vscode.authentication
       .getSession(
         'github',
-        [
-          'repo'
-        ],
+        ['repo'],
         {
           createIfNone: false
         }
       );
 
+  const items:
+    {
+      label: string;
+      action: string;
+    }[] = [];
 
-  const items = [];
-  if (!session) {
+  if (!session || !githubState.isConnected()) {
     items.push({
-      label:
-        '$(github) Connect GitHub',
-
-      action:
-        'connect'
+      label: '$(github) Connect GitHub',
+      action: 'connect'
     });
   } else {
     items.push({
-      label:
-        `$(account) ${session.account.label}`,
-      action:
-        'account'
+      label: `$(account) ${session.account.label}`,
+      action: 'account'
     });
 
-    const lastSync =
-      storage.getLastSync();
+    items.push({
+      label:
+        '$(sync) Auto Sync : ON',
+      action: 'none'
+    });
 
+    const lastSync = storage.getLastSync();
     if (lastSync) {
       items.push({
-        label:
-          `$(clock) Last Sync: ${formatDate(lastSync)}`,
-        action:
-          'lastSync'
+        label: `$(clock) Last Sync: ${formatDate(lastSync)}`,
+        action: 'lastSync'
       });
     }
 
     items.push({
-      label:
-        '$(sync) Sync Data',
-      action:
-        'sync'
-    });
-
-    items.push({
-      label:
-        '$(sign-out) Disconnect',
-      action:
-        'disconnect'
+      label: '$(sign-out) Disconnect',
+      action: 'disconnect'
     });
   }
 
@@ -77,43 +68,87 @@ export async function githubMenu(
     return;
   }
 
-  switch (
-  selected.action
-  ) {
+  switch (selected.action) {
     case 'connect':
-      await vscode.authentication
-        .getSession(
-          'github',
-          [
-            'repo'
-          ],
-          {
-            createIfNone: true
-          }
-        );
-      break;
+      const newSession =
+        await vscode.authentication
+          .getSession(
+            'github',
+            ['repo'],
+            {
+              createIfNone: true
+            }
+          );
 
-    case 'sync':
-      if (session) {
-        await initialSync(
-          storage,
-          session.accessToken
+      if (newSession) {
+        await githubState.connect();
+        vscode.window.showInformationMessage(
+          'GitHub connected ✓ Auto Sync enabled'
         );
       }
+
+      refreshGithubMenu();
       break;
 
+    case 'toggleSync':
+      const currentSession =
+        await vscode.authentication
+          .getSession(
+            'github',
+            ['repo'],
+            {
+              createIfNone: false
+            }
+          );
+
+      if (!currentSession) {
+        vscode.window.showErrorMessage(
+          'GitHub session not found'
+        );
+
+        break;
+      }
+
     case 'disconnect':
-      vscode.window.showInformationMessage(
-        'Please sign out from GitHub Authentication'
+      await disconnectGithub(
+        storage
       );
 
+      refreshGithubMenu();
       break;
   }
 
-  function formatDate(
-    date: string
-  ) {
+  async function disconnectGithub(storage: StorageService) {
+    const confirm =
+      await vscode.window.showWarningMessage(
+        'Disconnect GitHub and disable Auto Sync?',
+        {
+          modal: true
+        },
+        'Disconnect'
+      );
 
+    if (confirm !== 'Disconnect') {
+      return;
+    }
+
+    await githubState.disconnect();
+    await storage.clearLastSync();
+
+    vscode.window.showInformationMessage(
+      'GitHub disconnected. Auto Sync disabled'
+    );
+  }
+
+  function refreshGithubMenu() {
+    vscode.commands.executeCommand(
+      'setContext',
+      'devCommand.github.refresh',
+      Date.now()
+    );
+  }
+
+  function formatDate(date: string) {
     return new Date(date)
       .toLocaleString(
         'id-ID',
@@ -126,6 +161,5 @@ export async function githubMenu(
           second: '2-digit'
         }
       );
-
   }
 }

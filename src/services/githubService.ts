@@ -1,9 +1,7 @@
 export class GithubService {
   private octokit: any;
 
-  constructor(
-    private token: string
-  ) { }
+  constructor(private token: string) { }
 
   private async getOctokit() {
 
@@ -36,9 +34,7 @@ export class GithubService {
     return response.data;
   }
 
-  async repositoryExists(
-    repoName: string
-  ): Promise<boolean> {
+  async repositoryExists(repoName: string): Promise<boolean> {
     const octokit = await this.getOctokit();
     const user = await this.getUser();
 
@@ -53,9 +49,7 @@ export class GithubService {
     }
   }
 
-  async createRepository(
-    repoName: string
-  ) {
+  async createRepository(repoName: string) {
     const octokit = await this.getOctokit();
     const response =
       await octokit.rest.repos
@@ -69,9 +63,7 @@ export class GithubService {
     return response.data;
   }
 
-  async createOrUpdateFile(
-    params: any
-  ) {
+  async createOrUpdateFile(params: any) {
     const octokit = await this.getOctokit();
     let sha;
 
@@ -88,7 +80,7 @@ export class GithubService {
         sha = existing.data.sha;
       }
     } catch {
-      // file belum ada
+      throw new Error('File not found');
     }
 
     await octokit.rest.repos
@@ -100,5 +92,19 @@ export class GithubService {
         content: params.content,
         sha
       });
+  }
+
+  async getFile(params: any) {
+    const octokit = await this.getOctokit();
+    const response = await octokit.rest.repos.getContent({
+      owner: params.owner,
+      repo: params.repo,
+      path: params.path
+    });
+
+    if (Array.isArray(response.data)) {
+      throw new Error('Invalid file');
+    }
+    return response.data;
   }
 }

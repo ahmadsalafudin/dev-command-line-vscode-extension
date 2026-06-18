@@ -49,8 +49,8 @@ export async function editGroup(
 
   await storage.updateGroup({
     ...group,
-    name:
-      cleanName
+    name: cleanName,
+    updatedAt: new Date().toISOString()
   });
 
   vscode.window.showInformationMessage(

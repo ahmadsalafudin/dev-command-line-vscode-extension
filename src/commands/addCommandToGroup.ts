@@ -75,6 +75,7 @@ export async function addCommandToGroup(
     id: Date.now().toString(),
     name: cleanName,
     groupId,
-    commands
+    commands,
+    updatedAt: new Date().toISOString()
   });
 }

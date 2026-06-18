@@ -2,11 +2,7 @@ import * as vscode from 'vscode';
 import { CommandGroup } from '../models/commandGroup';
 import { StorageService } from '../services/storageService';
 
-export async function pickGroup(
-  storage: StorageService,
-  excludeGroupId?: string
-): Promise<CommandGroup | undefined> {
-
+export async function pickGroup(storage: StorageService, excludeGroupId?: string): Promise<CommandGroup | undefined> {
   const groups =
     storage
       .getGroups()
@@ -39,8 +35,7 @@ export async function pickGroup(
   if (selected.label === '+ Create New Group') {
     const name =
       await vscode.window.showInputBox({
-        prompt:
-          'Group Name'
+        prompt: 'Group Name'
       });
 
     if (!name) {
@@ -48,16 +43,12 @@ export async function pickGroup(
     }
 
     const group: CommandGroup = {
-      id:
-        Date.now().toString(),
-      name:
-        name.trim()
+      id: Date.now().toString(),
+      name: name.trim(),
+      updatedAt: new Date().toISOString()
     };
 
-    await storage.addGroup(
-      group
-    );
-
+    await storage.addGroup(group);
     return group;
   }
 

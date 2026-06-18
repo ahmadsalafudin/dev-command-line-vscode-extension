@@ -118,9 +118,9 @@ export async function editCommand(
 
   await storage.updateCommand({
     ...Command,
-    name:
-      newName,
-    commands
+    name: newName,
+    commands,
+    updatedAt: new Date().toISOString()
   });
 
   vscode.window.showInformationMessage(

@@ -14,7 +14,7 @@ export async function addCommand(
     return;
   }
 
-  const cleanName =    name.trim();
+  const cleanName = name.trim();
   const exists =
     storage.getCommands()
       .some(
@@ -74,9 +74,10 @@ export async function addCommand(
   await storage.addCommand({
     id: Date.now().toString(),
     name: cleanName,
-    groupId:
-      group.id,
-    commands
+    groupId: group.id,
+    commands,
+    favorite: false,
+    updatedAt: new Date().toISOString()
   });
 
   vscode.window.showInformationMessage(

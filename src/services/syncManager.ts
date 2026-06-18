@@ -2,12 +2,13 @@ import * as vscode from 'vscode';
 
 import { GithubFileService } from './githubFileService';
 import { GithubService } from './githubService';
+import { GithubStateService } from './githubStateService';
 import { StorageService } from './storageService';
 
-
 export class SyncManager {
-  private timer:
-    NodeJS.Timeout | undefined;
+
+  private timer: NodeJS.Timeout | undefined;
+  private githubState: GithubStateService;
 
   constructor(
     private storage: StorageService,
@@ -15,7 +16,13 @@ export class SyncManager {
     private onStatusChange?: (
       status: string
     ) => void
-  ) { }
+  ) {
+
+    this.githubState =
+      new GithubStateService(
+        context
+      );
+  }
 
   triggerSync() {
     if (this.timer) {
@@ -34,6 +41,11 @@ export class SyncManager {
   }
 
   private async sync() {
+    if (!this.githubState.isConnected()) {
+      console.log('Auto sync skipped: GitHub disconnected');
+      return;
+    }
+
     this.onStatusChange?.(
       'syncing'
     );
@@ -59,30 +71,21 @@ export class SyncManager {
         return;
       }
 
-      const github =
-        new GithubService(
-          session.accessToken
-        );
-
-      const file =
-        new GithubFileService(
-          github
-        );
+      const github = new GithubService(session.accessToken);
+      const file = new GithubFileService(github);
 
       await file.uploadCommandFile(
         this.storage.getBackupData()
       );
 
       await this.storage.saveLastSync();
-
-      this.onStatusChange?.(
-        'success'
-      );
+      this.onStatusChange?.('success');
 
     } catch (error) {
       this.onStatusChange?.(
         'error'
       );
+
       console.error(error);
     }
   }

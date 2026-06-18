@@ -4,4 +4,5 @@ export interface Command {
     groupId: string;
     commands: string[];
     favorite?: boolean;
+    updatedAt: string;
 }
