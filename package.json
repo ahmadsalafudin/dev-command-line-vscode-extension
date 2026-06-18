@@ -2,7 +2,7 @@
   "name": "dev-command-line",
   "displayName": "Dev Command Line",
   "description": "Manage, organize, and run reusable development commands directly inside VS Code.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "devware-engineers",
   "icon": "resources/command.png",
   "engines": {
@@ -22,11 +22,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ahmadsalafudin/dev-command-line.git"
+    "url": "https://github.com/ahmadsalafudin/dev-command-line-vscode-extension.git"
   },
-  "homepage": "https://github.com/ahmadsalafudin/dev-command-line",
+  "homepage": "https://github.com/ahmadsalafudin/dev-command-line-vscode-extension",
   "bugs": {
-    "url": "https://github.com/ahmadsalafudin/dev-command-line/issues"
+    "url": "https://github.com/ahmadsalafudin/dev-command-line-vscode-extension/issues"
   },
   "license": "MIT",
   "galleryBanner": {
